@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"],
-        mono: ["JetBrains Mono", "monospace"],
+        sans: ["Inter", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
+        serif: ["Libre Baskerville", "Georgia", "serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -51,13 +51,12 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        glow: "hsl(var(--glow))",
-        "glow-purple": "hsl(var(--glow-purple))",
+        "frappe-brown": "hsl(var(--frappe-brown))",
+        "frappe-brown-light": "hsl(var(--frappe-brown-light))",
+        "frappe-surface": "hsl(var(--frappe-surface))",
+        "frappe-surface-hover": "hsl(var(--frappe-surface-hover))",
         success: "hsl(var(--success))",
         warning: "hsl(var(--warning))",
-        "surface-1": "hsl(var(--surface-1))",
-        "surface-2": "hsl(var(--surface-2))",
-        "surface-3": "hsl(var(--surface-3))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",

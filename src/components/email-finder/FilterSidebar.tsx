@@ -1,17 +1,12 @@
 import { useState } from "react";
 import {
-  Users, Building2, TrendingUp, Settings2,
-  ChevronDown, Sparkles
+  Users, Building2, TrendingUp, Settings2, Sparkles
 } from "lucide-react";
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
+  Accordion, AccordionContent, AccordionItem, AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { SearchFilters } from "@/types/emailFinder";
@@ -24,58 +19,39 @@ interface FilterSidebarProps {
 }
 
 const MultiSelect = ({
-  label,
-  options,
-  selected,
-  onChange,
+  label, options, selected, onChange,
 }: {
-  label: string;
-  options: string[];
-  selected: string[];
-  onChange: (v: string[]) => void;
+  label: string; options: string[]; selected: string[]; onChange: (v: string[]) => void;
 }) => {
   const [search, setSearch] = useState("");
-  const filtered = options.filter((o) =>
-    o.toLowerCase().includes(search.toLowerCase())
-  );
-
+  const filtered = options.filter((o) => o.toLowerCase().includes(search.toLowerCase()));
   const toggle = (val: string) => {
-    onChange(
-      selected.includes(val)
-        ? selected.filter((s) => s !== val)
-        : [...selected, val]
-    );
+    onChange(selected.includes(val) ? selected.filter((s) => s !== val) : [...selected, val]);
   };
 
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{label}</span>
+        <span className="frappe-label">{label}</span>
         {selected.length > 0 && (
-          <Badge variant="secondary" className="text-[10px] bg-primary/10 text-primary border-primary/20">
-            {selected.length}
-          </Badge>
+          <Badge variant="secondary" className="text-[10px] rounded-full">{selected.length}</Badge>
         )}
       </div>
       <Input
         placeholder={`Search ${label.toLowerCase()}...`}
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="h-8 text-xs bg-surface-2 border-border"
+        className="h-8 text-xs"
       />
       <ScrollArea className="h-36">
-        <div className="space-y-1 pr-3">
+        <div className="space-y-0.5 pr-3">
           {filtered.map((opt) => (
-            <label
-              key={opt}
-              className="flex items-center gap-2 py-1 px-2 rounded text-sm cursor-pointer hover:bg-surface-2 transition-colors"
-            >
+            <label key={opt} className="flex items-center gap-2 py-1.5 px-2 rounded-md text-sm cursor-pointer hover:bg-muted transition-colors">
               <Checkbox
                 checked={selected.includes(opt)}
                 onCheckedChange={() => toggle(opt)}
-                className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
               />
-              <span className="text-secondary-foreground text-xs">{opt}</span>
+              <span className="text-xs text-foreground">{opt}</span>
             </label>
           ))}
         </div>
@@ -111,25 +87,21 @@ const FilterSidebar = ({ filters, onFiltersChange }: FilterSidebarProps) => {
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
             <Settings2 className="w-4 h-4 text-primary" />
-            Advanced Filters
+            Filters
           </h3>
           {activeCount > 0 && (
-            <Badge className="bg-primary text-primary-foreground text-[10px]">
-              {activeCount} active
-            </Badge>
+            <Badge variant="secondary" className="text-[10px] rounded-full">{activeCount} active</Badge>
           )}
         </div>
-        {/* Presets */}
         <div className="space-y-1">
-          <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-widest">Quick Presets</span>
-          <div className="flex flex-wrap gap-1">
+          <span className="frappe-label">Quick Presets</span>
+          <div className="flex flex-wrap gap-1 mt-1">
             {FILTER_DATA.presets.map((p) => (
               <button
                 key={p.name}
                 onClick={() => applyPreset(p)}
-                className="text-[10px] px-2 py-1 rounded border border-border bg-surface-2 text-muted-foreground hover:border-primary/40 hover:text-primary transition-colors"
+                className="text-[10px] px-2 py-1 rounded-full border border-border text-muted-foreground hover:border-primary hover:text-primary transition-colors"
               >
-                <Sparkles className="w-2.5 h-2.5 inline mr-1" />
                 {p.name}
               </button>
             ))}
@@ -140,105 +112,52 @@ const FilterSidebar = ({ filters, onFiltersChange }: FilterSidebarProps) => {
       <ScrollArea className="flex-1">
         <div className="p-4">
           <Accordion type="multiple" defaultValue={["people", "company"]} className="space-y-2">
-            {/* PEOPLE */}
             <AccordionItem value="people" className="border border-border rounded-lg overflow-hidden">
-              <AccordionTrigger className="px-4 py-3 text-sm font-medium hover:no-underline hover:bg-surface-2 data-[state=open]:bg-surface-2">
+              <AccordionTrigger className="px-4 py-3 text-sm font-medium hover:no-underline hover:bg-muted data-[state=open]:bg-muted">
                 <span className="flex items-center gap-2">
                   <Users className="w-4 h-4 text-primary" />
-                  People Filters
+                  People
                 </span>
               </AccordionTrigger>
               <AccordionContent className="px-4 pb-4 space-y-4">
-                <MultiSelect
-                  label="Title / Persona"
-                  options={FILTER_DATA.personaTitles}
-                  selected={filters.titles}
-                  onChange={(v) => update("titles", v)}
-                />
-                <MultiSelect
-                  label="Seniority"
-                  options={FILTER_DATA.seniority}
-                  selected={filters.seniority}
-                  onChange={(v) => update("seniority", v)}
-                />
-                <MultiSelect
-                  label="Department"
-                  options={FILTER_DATA.departments}
-                  selected={filters.departments}
-                  onChange={(v) => update("departments", v)}
-                />
-                <MultiSelect
-                  label="Location"
-                  options={FILTER_DATA.countries}
-                  selected={filters.countries}
-                  onChange={(v) => update("countries", v)}
-                />
+                <MultiSelect label="Title / Persona" options={FILTER_DATA.personaTitles} selected={filters.titles} onChange={(v) => update("titles", v)} />
+                <MultiSelect label="Seniority" options={FILTER_DATA.seniority} selected={filters.seniority} onChange={(v) => update("seniority", v)} />
+                <MultiSelect label="Department" options={FILTER_DATA.departments} selected={filters.departments} onChange={(v) => update("departments", v)} />
+                <MultiSelect label="Location" options={FILTER_DATA.countries} selected={filters.countries} onChange={(v) => update("countries", v)} />
                 <div className="space-y-1.5">
-                  <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Keywords</span>
-                  <Input
-                    placeholder="AI, machine learning, fintech..."
-                    value={filters.keywords}
-                    onChange={(e) => update("keywords", e.target.value)}
-                    className="h-8 text-xs bg-surface-2 border-border"
-                  />
+                  <span className="frappe-label">Keywords</span>
+                  <Input placeholder="AI, machine learning, fintech..." value={filters.keywords} onChange={(e) => update("keywords", e.target.value)} className="h-8 text-xs" />
                 </div>
               </AccordionContent>
             </AccordionItem>
 
-            {/* COMPANY */}
             <AccordionItem value="company" className="border border-border rounded-lg overflow-hidden">
-              <AccordionTrigger className="px-4 py-3 text-sm font-medium hover:no-underline hover:bg-surface-2 data-[state=open]:bg-surface-2">
+              <AccordionTrigger className="px-4 py-3 text-sm font-medium hover:no-underline hover:bg-muted data-[state=open]:bg-muted">
                 <span className="flex items-center gap-2">
-                  <Building2 className="w-4 h-4 text-accent" />
-                  Company Filters
+                  <Building2 className="w-4 h-4 text-primary" />
+                  Company
                 </span>
               </AccordionTrigger>
               <AccordionContent className="px-4 pb-4 space-y-4">
-                <MultiSelect
-                  label="Industry"
-                  options={FILTER_DATA.industries}
-                  selected={filters.industries}
-                  onChange={(v) => update("industries", v)}
-                />
-                <MultiSelect
-                  label="Employee Count"
-                  options={FILTER_DATA.employeeRanges}
-                  selected={filters.employeeRanges}
-                  onChange={(v) => update("employeeRanges", v)}
-                />
-                <MultiSelect
-                  label="Revenue"
-                  options={FILTER_DATA.revenueRanges}
-                  selected={filters.revenueRanges}
-                  onChange={(v) => update("revenueRanges", v)}
-                />
-                <MultiSelect
-                  label="Tech Stack"
-                  options={FILTER_DATA.techStack}
-                  selected={filters.techStack}
-                  onChange={(v) => update("techStack", v)}
-                />
-                <MultiSelect
-                  label="Funding Stage"
-                  options={FILTER_DATA.fundingStages}
-                  selected={filters.fundingStages}
-                  onChange={(v) => update("fundingStages", v)}
-                />
+                <MultiSelect label="Industry" options={FILTER_DATA.industries} selected={filters.industries} onChange={(v) => update("industries", v)} />
+                <MultiSelect label="Employee Count" options={FILTER_DATA.employeeRanges} selected={filters.employeeRanges} onChange={(v) => update("employeeRanges", v)} />
+                <MultiSelect label="Revenue" options={FILTER_DATA.revenueRanges} selected={filters.revenueRanges} onChange={(v) => update("revenueRanges", v)} />
+                <MultiSelect label="Tech Stack" options={FILTER_DATA.techStack} selected={filters.techStack} onChange={(v) => update("techStack", v)} />
+                <MultiSelect label="Funding Stage" options={FILTER_DATA.fundingStages} selected={filters.fundingStages} onChange={(v) => update("fundingStages", v)} />
               </AccordionContent>
             </AccordionItem>
 
-            {/* SIGNALS */}
             <AccordionItem value="signals" className="border border-border rounded-lg overflow-hidden">
-              <AccordionTrigger className="px-4 py-3 text-sm font-medium hover:no-underline hover:bg-surface-2 data-[state=open]:bg-surface-2">
+              <AccordionTrigger className="px-4 py-3 text-sm font-medium hover:no-underline hover:bg-muted data-[state=open]:bg-muted">
                 <span className="flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4 text-success" />
+                  <TrendingUp className="w-4 h-4 text-primary" />
                   Buying Signals
                 </span>
               </AccordionTrigger>
               <AccordionContent className="px-4 pb-4">
-                <div className="text-xs text-muted-foreground p-3 rounded-lg bg-surface-2 border border-border text-center">
+                <div className="text-xs text-muted-foreground p-4 rounded-lg bg-muted border border-border text-center">
                   <Sparkles className="w-4 h-4 mx-auto mb-2 text-primary" />
-                  Intent signals, hiring triggers, and growth indicators available with Lovable Cloud integration.
+                  Intent signals and growth indicators coming soon.
                 </div>
               </AccordionContent>
             </AccordionItem>
@@ -246,15 +165,13 @@ const FilterSidebar = ({ filters, onFiltersChange }: FilterSidebarProps) => {
         </div>
       </ScrollArea>
 
-      {/* Active filters chips */}
       {activeCount > 0 && (
         <div className="p-4 border-t border-border space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-widest">Active Filters</span>
+            <span className="frappe-label">Active Filters</span>
             <button
               onClick={() => onFiltersChange({
-                ...filters,
-                titles: [], seniority: [], departments: [], countries: [],
+                ...filters, titles: [], seniority: [], departments: [], countries: [],
                 industries: [], techStack: [], employeeRanges: [], revenueRanges: [],
                 fundingStages: [], keywords: "",
               })}
@@ -264,24 +181,12 @@ const FilterSidebar = ({ filters, onFiltersChange }: FilterSidebarProps) => {
             </button>
           </div>
           <div className="flex flex-wrap gap-1">
-            {filters.titles.map((t) => (
-              <FilterChip key={t} label={t} onRemove={() => update("titles", filters.titles.filter((x) => x !== t))} />
-            ))}
-            {filters.seniority.map((t) => (
-              <FilterChip key={t} label={t} onRemove={() => update("seniority", filters.seniority.filter((x) => x !== t))} />
-            ))}
-            {filters.departments.map((t) => (
-              <FilterChip key={t} label={t} onRemove={() => update("departments", filters.departments.filter((x) => x !== t))} />
-            ))}
-            {filters.industries.map((t) => (
-              <FilterChip key={t} label={t} onRemove={() => update("industries", filters.industries.filter((x) => x !== t))} />
-            ))}
-            {filters.techStack.map((t) => (
-              <FilterChip key={t} label={t} onRemove={() => update("techStack", filters.techStack.filter((x) => x !== t))} />
-            ))}
-            {filters.countries.map((t) => (
-              <FilterChip key={t} label={t} onRemove={() => update("countries", filters.countries.filter((x) => x !== t))} />
-            ))}
+            {filters.titles.map((t) => <FilterChip key={t} label={t} onRemove={() => update("titles", filters.titles.filter((x) => x !== t))} />)}
+            {filters.seniority.map((t) => <FilterChip key={t} label={t} onRemove={() => update("seniority", filters.seniority.filter((x) => x !== t))} />)}
+            {filters.departments.map((t) => <FilterChip key={t} label={t} onRemove={() => update("departments", filters.departments.filter((x) => x !== t))} />)}
+            {filters.industries.map((t) => <FilterChip key={t} label={t} onRemove={() => update("industries", filters.industries.filter((x) => x !== t))} />)}
+            {filters.techStack.map((t) => <FilterChip key={t} label={t} onRemove={() => update("techStack", filters.techStack.filter((x) => x !== t))} />)}
+            {filters.countries.map((t) => <FilterChip key={t} label={t} onRemove={() => update("countries", filters.countries.filter((x) => x !== t))} />)}
           </div>
         </div>
       )}

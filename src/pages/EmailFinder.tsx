@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from "react";
-import { PanelLeftClose, PanelLeft, LogOut } from "lucide-react";
+import { PanelLeftClose, PanelLeft, LogOut, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import HeroSection from "@/components/email-finder/HeroSection";
@@ -33,32 +33,30 @@ const EmailFinder = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Top nav */}
-      <nav className="border-b border-border glass sticky top-0 z-50">
-        <div className="max-w-[1600px] mx-auto px-4 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-sm">EF</span>
+      {/* Frappe-style top nav */}
+      <nav className="border-b border-border bg-background sticky top-0 z-50">
+        <div className="max-w-[1200px] mx-auto px-6 h-12 flex items-center justify-between">
+          <div className="flex items-center gap-2 text-sm">
+            <div className="w-6 h-6 rounded-md bg-primary flex items-center justify-center">
+              <span className="text-primary-foreground font-bold text-xs">EF</span>
             </div>
             <span className="font-semibold text-foreground">Email Finder</span>
+            <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
+            <span className="text-muted-foreground">Search</span>
           </div>
           <div className="flex items-center gap-2">
             {user ? (
               <>
                 <span className="text-xs text-muted-foreground hidden sm:inline">{user.email}</span>
                 <Button variant="ghost" size="sm" onClick={signOut}>
-                  <LogOut className="w-4 h-4" /> Sign Out
+                  <LogOut className="w-3.5 h-3.5" />
                 </Button>
               </>
             ) : (
-              <>
-                <Button variant="ghost" size="sm" asChild>
-                  <a href="/login">Sign In</a>
-                </Button>
-                <Button variant="hero" size="sm" asChild>
-                  <a href="/login">Get Started</a>
-                </Button>
-              </>
+              <a href="/login" className="text-sm text-foreground hover:text-primary transition-colors flex items-center gap-1">
+                Log in or create account
+                <ArrowRight className="w-3.5 h-3.5" />
+              </a>
             )}
           </div>
         </div>
@@ -66,19 +64,18 @@ const EmailFinder = () => {
 
       <HeroSection onScrollToSearch={scrollToSearch} />
 
-      <div ref={searchRef} className="max-w-[1600px] mx-auto px-4 pb-20">
-        {/* Tabs: Search vs Bulk Import */}
+      <div ref={searchRef} className="max-w-[1200px] mx-auto px-6 pb-20">
         <Tabs defaultValue="search" className="mb-6">
-          <TabsList className="bg-surface-2 border border-border">
-            <TabsTrigger value="search" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+          <TabsList className="bg-muted border border-border rounded-full p-0.5">
+            <TabsTrigger value="search" className="rounded-full text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm">
               Single Search
             </TabsTrigger>
-            <TabsTrigger value="bulk" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            <TabsTrigger value="bulk" className="rounded-full text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm">
               Bulk CSV Import
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="search" className="mt-4 space-y-6">
+          <TabsContent value="search" className="mt-6 space-y-6">
             <QuickSearchForm
               filters={filters}
               onFiltersChange={setFilters}
@@ -88,15 +85,15 @@ const EmailFinder = () => {
             <div className="flex gap-6">
               <div className="flex-shrink-0">
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="icon"
                   onClick={() => setShowFilters(!showFilters)}
-                  className="mb-4"
+                  className="mb-3"
                 >
                   {showFilters ? <PanelLeftClose className="w-4 h-4" /> : <PanelLeft className="w-4 h-4" />}
                 </Button>
                 {showFilters && (
-                  <div className="w-72 glass rounded-xl border border-border overflow-hidden">
+                  <div className="w-72 frappe-card overflow-hidden">
                     <FilterSidebar filters={filters} onFiltersChange={setFilters} />
                   </div>
                 )}
@@ -107,7 +104,7 @@ const EmailFinder = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="bulk" className="mt-4">
+          <TabsContent value="bulk" className="mt-6">
             <div className="max-w-2xl mx-auto">
               <BulkCSVImport />
             </div>
@@ -117,5 +114,8 @@ const EmailFinder = () => {
     </div>
   );
 };
+
+// Need to import ArrowRight for the nav
+import { ArrowRight } from "lucide-react";
 
 export default EmailFinder;

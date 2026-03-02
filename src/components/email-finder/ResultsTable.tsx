@@ -2,10 +2,7 @@ import { useState } from "react";
 import { Download, Copy, CheckCircle2, AlertTriangle, HelpCircle, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { EmailResult } from "@/types/emailFinder";
 import { toast } from "sonner";
 
@@ -16,21 +13,15 @@ interface ResultsTableProps {
 
 const StatusIcon = ({ status }: { status: EmailResult["status"] }) => {
   switch (status) {
-    case "valid":
-      return <CheckCircle2 className="w-4 h-4 text-success" />;
-    case "risky":
-      return <AlertTriangle className="w-4 h-4 text-warning" />;
-    default:
-      return <HelpCircle className="w-4 h-4 text-muted-foreground" />;
+    case "valid": return <CheckCircle2 className="w-3.5 h-3.5 text-success" />;
+    case "risky": return <AlertTriangle className="w-3.5 h-3.5 text-warning" />;
+    default: return <HelpCircle className="w-3.5 h-3.5 text-muted-foreground" />;
   }
 };
 
 const ConfidenceBadge = ({ score }: { score: number }) => {
-  const color = score >= 90 ? "bg-success/10 text-success border-success/20"
-    : score >= 75 ? "bg-primary/10 text-primary border-primary/20"
-    : "bg-warning/10 text-warning border-warning/20";
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-mono font-medium border ${color}`}>
+    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-muted text-foreground">
       {score}%
     </span>
   );
@@ -89,17 +80,17 @@ const ResultsTable = ({ results, isLoading }: ResultsTableProps) => {
 
   if (isLoading) {
     return (
-      <div className="glass rounded-xl p-12 text-center">
-        <div className="w-12 h-12 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-        <p className="text-muted-foreground text-sm">Searching across enriched database...</p>
+      <div className="frappe-card p-12 text-center">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+        <p className="text-sm text-muted-foreground">Searching across enriched database...</p>
       </div>
     );
   }
 
   if (results.length === 0) {
     return (
-      <div className="glass rounded-xl p-12 text-center">
-        <p className="text-muted-foreground text-sm">Enter a name and domain or apply filters to find emails.</p>
+      <div className="frappe-card p-12 text-center">
+        <p className="text-sm text-muted-foreground">Enter a name and domain or apply filters to find emails.</p>
       </div>
     );
   }
@@ -108,8 +99,8 @@ const ResultsTable = ({ results, isLoading }: ResultsTableProps) => {
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          <span className="text-foreground font-semibold">{results.length}</span> results found
-          {selected.size > 0 && <span className="text-primary"> • {selected.size} selected</span>}
+          <span className="text-foreground font-semibold">{results.length}</span> results
+          {selected.size > 0 && <span className="text-primary"> · {selected.size} selected</span>}
         </p>
         <div className="flex gap-2">
           {selected.size > 0 && (
@@ -123,38 +114,30 @@ const ResultsTable = ({ results, isLoading }: ResultsTableProps) => {
         </div>
       </div>
 
-      <div className="glass rounded-xl overflow-hidden border border-border">
+      <div className="frappe-card overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow className="border-border hover:bg-transparent">
+            <TableRow className="hover:bg-transparent">
               <TableHead className="w-10">
-                <Checkbox
-                  checked={selected.size === results.length && results.length > 0}
-                  onCheckedChange={toggleAll}
-                  className="border-border"
-                />
+                <Checkbox checked={selected.size === results.length && results.length > 0} onCheckedChange={toggleAll} />
               </TableHead>
-              <TableHead className="text-xs uppercase tracking-wider text-muted-foreground">Person</TableHead>
-              <TableHead className="text-xs uppercase tracking-wider text-muted-foreground cursor-pointer select-none" onClick={() => toggleSort("email")}>
+              <TableHead className="frappe-label">Person</TableHead>
+              <TableHead className="frappe-label cursor-pointer select-none" onClick={() => toggleSort("email")}>
                 <span className="flex items-center gap-1">Email <SortIcon field="email" /></span>
               </TableHead>
-              <TableHead className="text-xs uppercase tracking-wider text-muted-foreground">Title</TableHead>
-              <TableHead className="text-xs uppercase tracking-wider text-muted-foreground">Company</TableHead>
-              <TableHead className="text-xs uppercase tracking-wider text-muted-foreground cursor-pointer select-none" onClick={() => toggleSort("confidence")}>
+              <TableHead className="frappe-label">Title</TableHead>
+              <TableHead className="frappe-label">Company</TableHead>
+              <TableHead className="frappe-label cursor-pointer select-none" onClick={() => toggleSort("confidence")}>
                 <span className="flex items-center gap-1">Score <SortIcon field="confidence" /></span>
               </TableHead>
-              <TableHead className="text-xs uppercase tracking-wider text-muted-foreground">Status</TableHead>
+              <TableHead className="frappe-label">Status</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {sorted.map((r) => (
-              <TableRow key={r.id} className="border-border hover:bg-surface-2/50 transition-colors">
+              <TableRow key={r.id} className="hover:bg-muted/50 transition-colors">
                 <TableCell>
-                  <Checkbox
-                    checked={selected.has(r.id)}
-                    onCheckedChange={() => toggleOne(r.id)}
-                    className="border-border"
-                  />
+                  <Checkbox checked={selected.has(r.id)} onCheckedChange={() => toggleOne(r.id)} />
                 </TableCell>
                 <TableCell>
                   <div>
@@ -163,10 +146,10 @@ const ResultsTable = ({ results, isLoading }: ResultsTableProps) => {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <span className="font-mono text-xs text-primary">{r.email}</span>
+                  <span className="text-xs text-primary font-medium">{r.email}</span>
                 </TableCell>
                 <TableCell>
-                  <span className="text-xs text-secondary-foreground">{r.title}</span>
+                  <span className="text-xs text-foreground">{r.title}</span>
                 </TableCell>
                 <TableCell>
                   <div>
