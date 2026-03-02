@@ -64,53 +64,66 @@ const EmailFinder = () => {
 
       <HeroSection onScrollToSearch={scrollToSearch} />
 
-      <div ref={searchRef} className="max-w-[1200px] mx-auto px-6 pb-20">
-        <Tabs defaultValue="search" className="mb-6">
-          <TabsList className="bg-muted border border-border rounded-full p-0.5">
-            <TabsTrigger value="search" className="rounded-full text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm">
-              Single Search
-            </TabsTrigger>
-            <TabsTrigger value="bulk" className="rounded-full text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm">
-              Bulk CSV Import
-            </TabsTrigger>
-          </TabsList>
+      {user ? (
+        <div ref={searchRef} className="max-w-[1200px] mx-auto px-6 pb-20">
+          <Tabs defaultValue="search" className="mb-6">
+            <TabsList className="bg-muted border border-border rounded-full p-0.5">
+              <TabsTrigger value="search" className="rounded-full text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                Single Search
+              </TabsTrigger>
+              <TabsTrigger value="bulk" className="rounded-full text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                Bulk CSV Import
+              </TabsTrigger>
+            </TabsList>
 
-          <TabsContent value="search" className="mt-6 space-y-6">
-            <QuickSearchForm
-              filters={filters}
-              onFiltersChange={setFilters}
-              onSearch={handleSearch}
-              isSearching={isSearching}
-            />
-            <div className="flex gap-6">
-              <div className="flex-shrink-0">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setShowFilters(!showFilters)}
-                  className="mb-3"
-                >
-                  {showFilters ? <PanelLeftClose className="w-4 h-4" /> : <PanelLeft className="w-4 h-4" />}
-                </Button>
-                {showFilters && (
-                  <div className="w-72 frappe-card overflow-hidden">
-                    <FilterSidebar filters={filters} onFiltersChange={setFilters} />
-                  </div>
-                )}
+            <TabsContent value="search" className="mt-6 space-y-6">
+              <QuickSearchForm
+                filters={filters}
+                onFiltersChange={setFilters}
+                onSearch={handleSearch}
+                isSearching={isSearching}
+              />
+              <div className="flex gap-6">
+                <div className="flex-shrink-0">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setShowFilters(!showFilters)}
+                    className="mb-3"
+                  >
+                    {showFilters ? <PanelLeftClose className="w-4 h-4" /> : <PanelLeft className="w-4 h-4" />}
+                  </Button>
+                  {showFilters && (
+                    <div className="w-72 frappe-card overflow-hidden">
+                      <FilterSidebar filters={filters} onFiltersChange={setFilters} />
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <ResultsTable results={results} isLoading={isSearching} />
+                </div>
               </div>
-              <div className="flex-1 min-w-0">
-                <ResultsTable results={results} isLoading={isSearching} />
-              </div>
-            </div>
-          </TabsContent>
+            </TabsContent>
 
-          <TabsContent value="bulk" className="mt-6">
-            <div className="max-w-2xl mx-auto">
-              <BulkCSVImport />
-            </div>
-          </TabsContent>
-        </Tabs>
-      </div>
+            <TabsContent value="bulk" className="mt-6">
+              <div className="max-w-2xl mx-auto">
+                <BulkCSVImport />
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
+      ) : (
+        <div ref={searchRef} className="max-w-[1200px] mx-auto px-6 pb-20 text-center">
+          <div className="py-16">
+            <p className="text-muted-foreground mb-4">Create an account to start finding emails</p>
+            <a href="/login">
+              <Button variant="frappe">
+                Get Started <ArrowRight className="w-4 h-4" />
+              </Button>
+            </a>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
