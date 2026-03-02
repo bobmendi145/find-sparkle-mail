@@ -13,6 +13,7 @@ export interface EmailResult {
   location: string;
   industry: string;
   companySize: string;
+  linkedinUrl?: string;
 }
 
 export interface SearchFilters {

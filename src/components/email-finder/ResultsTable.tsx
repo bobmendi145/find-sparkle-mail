@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Download, Copy, CheckCircle2, AlertTriangle, HelpCircle, ChevronDown, ChevronUp } from "lucide-react";
+import { Download, Copy, CheckCircle2, AlertTriangle, HelpCircle, ChevronDown, ChevronUp, Linkedin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -140,9 +140,16 @@ const ResultsTable = ({ results, isLoading }: ResultsTableProps) => {
                   <Checkbox checked={selected.has(r.id)} onCheckedChange={() => toggleOne(r.id)} />
                 </TableCell>
                 <TableCell>
-                  <div>
-                    <span className="font-medium text-sm text-foreground">{r.firstName} {r.lastName}</span>
-                    <p className="text-xs text-muted-foreground">{r.location}</p>
+                  <div className="flex items-center gap-2">
+                    <div>
+                      <span className="font-medium text-sm text-foreground">{r.firstName} {r.lastName}</span>
+                      <p className="text-xs text-muted-foreground">{r.location}</p>
+                    </div>
+                    {r.linkedinUrl && (
+                      <a href={r.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors" title="LinkedIn Profile">
+                        <Linkedin className="w-3.5 h-3.5" />
+                      </a>
+                    )}
                   </div>
                 </TableCell>
                 <TableCell>
