@@ -14,7 +14,215 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      companies: {
+        Row: {
+          created_at: string
+          description: string | null
+          domain: string
+          employee_count: number | null
+          founded_year: number | null
+          funding_stage: string | null
+          funding_total: number | null
+          growth_rate: number | null
+          id: string
+          industry: string[] | null
+          location_hq_city: string | null
+          location_hq_country: string | null
+          location_hq_state: string | null
+          name: string
+          revenue_usd: number | null
+          tech_stack: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          domain: string
+          employee_count?: number | null
+          founded_year?: number | null
+          funding_stage?: string | null
+          funding_total?: number | null
+          growth_rate?: number | null
+          id?: string
+          industry?: string[] | null
+          location_hq_city?: string | null
+          location_hq_country?: string | null
+          location_hq_state?: string | null
+          name: string
+          revenue_usd?: number | null
+          tech_stack?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          domain?: string
+          employee_count?: number | null
+          founded_year?: number | null
+          funding_stage?: string | null
+          funding_total?: number | null
+          growth_rate?: number | null
+          id?: string
+          industry?: string[] | null
+          location_hq_city?: string | null
+          location_hq_country?: string | null
+          location_hq_state?: string | null
+          name?: string
+          revenue_usd?: number | null
+          tech_stack?: string[] | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      csv_imports: {
+        Row: {
+          created_at: string
+          filename: string
+          id: string
+          processed_rows: number | null
+          results_json: Json | null
+          status: string | null
+          total_rows: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          filename: string
+          id?: string
+          processed_rows?: number | null
+          results_json?: Json | null
+          status?: string | null
+          total_rows?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          filename?: string
+          id?: string
+          processed_rows?: number | null
+          results_json?: Json | null
+          status?: string | null
+          total_rows?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      people: {
+        Row: {
+          company_id: string | null
+          created_at: string
+          department: string | null
+          email: string | null
+          email_confidence: number | null
+          email_status: string | null
+          first_name: string
+          id: string
+          keywords: string[] | null
+          last_name: string
+          location_city: string | null
+          location_country: string | null
+          seniority: string | null
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          company_id?: string | null
+          created_at?: string
+          department?: string | null
+          email?: string | null
+          email_confidence?: number | null
+          email_status?: string | null
+          first_name: string
+          id?: string
+          keywords?: string[] | null
+          last_name: string
+          location_city?: string | null
+          location_country?: string | null
+          seniority?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string | null
+          created_at?: string
+          department?: string | null
+          email?: string | null
+          email_confidence?: number | null
+          email_status?: string | null
+          first_name?: string
+          id?: string
+          keywords?: string[] | null
+          last_name?: string
+          location_city?: string | null
+          location_country?: string | null
+          seniority?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "people_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      saved_filters: {
+        Row: {
+          created_at: string
+          filters_json: Json
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          filters_json?: Json
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          filters_json?: Json
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      search_history: {
+        Row: {
+          created_at: string
+          filters_json: Json
+          id: string
+          results_count: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          filters_json?: Json
+          id?: string
+          results_count?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          filters_json?: Json
+          id?: string
+          results_count?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
