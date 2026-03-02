@@ -122,6 +122,7 @@ export type Database = {
           id: string
           keywords: string[] | null
           last_name: string
+          linkedin_url: string | null
           location_city: string | null
           location_country: string | null
           seniority: string | null
@@ -139,6 +140,7 @@ export type Database = {
           id?: string
           keywords?: string[] | null
           last_name: string
+          linkedin_url?: string | null
           location_city?: string | null
           location_country?: string | null
           seniority?: string | null
@@ -156,6 +158,7 @@ export type Database = {
           id?: string
           keywords?: string[] | null
           last_name?: string
+          linkedin_url?: string | null
           location_city?: string | null
           location_country?: string | null
           seniority?: string | null

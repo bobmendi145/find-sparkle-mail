@@ -22,6 +22,8 @@ export function generateMockResults(count: number = 25): EmailResult[] {
     const patterns = [`${fn.toLowerCase()}.${ln.toLowerCase()}`, `${fn[0].toLowerCase()}${ln.toLowerCase()}`, `${fn.toLowerCase()}`];
     const email = `${patterns[i % 3]}@${domain}`;
 
+    const linkedinUrl = i % 3 !== 2 ? `https://linkedin.com/in/${fn.toLowerCase()}-${ln.toLowerCase()}-${Math.floor(Math.random() * 900 + 100)}` : undefined;
+
     return {
       id: `res-${i}`,
       firstName: fn,
@@ -37,6 +39,7 @@ export function generateMockResults(count: number = 25): EmailResult[] {
       location: locations[i % locations.length],
       industry: industries[i % industries.length],
       companySize: sizes[i % sizes.length],
+      linkedinUrl,
     };
   });
 }
