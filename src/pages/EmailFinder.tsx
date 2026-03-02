@@ -1,12 +1,15 @@
 import { useState, useRef, useCallback } from "react";
-import { Filter, PanelLeftClose, PanelLeft } from "lucide-react";
+import { PanelLeftClose, PanelLeft, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import HeroSection from "@/components/email-finder/HeroSection";
 import QuickSearchForm from "@/components/email-finder/QuickSearchForm";
 import FilterSidebar from "@/components/email-finder/FilterSidebar";
 import ResultsTable from "@/components/email-finder/ResultsTable";
+import BulkCSVImport from "@/components/email-finder/BulkCSVImport";
 import { SearchFilters, defaultFilters, EmailResult } from "@/types/emailFinder";
 import { generateMockResults } from "@/data/mockResults";
+import { useAuth } from "@/hooks/useAuth";
 
 const EmailFinder = () => {
   const [filters, setFilters] = useState<SearchFilters>(defaultFilters);
@@ -14,6 +17,7 @@ const EmailFinder = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [showFilters, setShowFilters] = useState(true);
   const searchRef = useRef<HTMLDivElement>(null);
+  const { user, signOut } = useAuth();
 
   const scrollToSearch = useCallback(() => {
     searchRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -21,7 +25,6 @@ const EmailFinder = () => {
 
   const handleSearch = useCallback(() => {
     setIsSearching(true);
-    // Simulate search
     setTimeout(() => {
       setResults(generateMockResults(30));
       setIsSearching(false);
@@ -40,12 +43,23 @@ const EmailFinder = () => {
             <span className="font-semibold text-foreground">Email Finder</span>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" asChild>
-              <a href="/login">Sign In</a>
-            </Button>
-            <Button variant="hero" size="sm" asChild>
-              <a href="/login">Get Started</a>
-            </Button>
+            {user ? (
+              <>
+                <span className="text-xs text-muted-foreground hidden sm:inline">{user.email}</span>
+                <Button variant="ghost" size="sm" onClick={signOut}>
+                  <LogOut className="w-4 h-4" /> Sign Out
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="ghost" size="sm" asChild>
+                  <a href="/login">Sign In</a>
+                </Button>
+                <Button variant="hero" size="sm" asChild>
+                  <a href="/login">Get Started</a>
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </nav>
@@ -53,41 +67,52 @@ const EmailFinder = () => {
       <HeroSection onScrollToSearch={scrollToSearch} />
 
       <div ref={searchRef} className="max-w-[1600px] mx-auto px-4 pb-20">
-        {/* Quick search */}
-        <div className="mb-6">
-          <QuickSearchForm
-            filters={filters}
-            onFiltersChange={setFilters}
-            onSearch={handleSearch}
-            isSearching={isSearching}
-          />
-        </div>
+        {/* Tabs: Search vs Bulk Import */}
+        <Tabs defaultValue="search" className="mb-6">
+          <TabsList className="bg-surface-2 border border-border">
+            <TabsTrigger value="search" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              Single Search
+            </TabsTrigger>
+            <TabsTrigger value="bulk" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              Bulk CSV Import
+            </TabsTrigger>
+          </TabsList>
 
-        {/* Main area: filters + results */}
-        <div className="flex gap-6">
-          {/* Toggle button */}
-          <div className="flex-shrink-0">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setShowFilters(!showFilters)}
-              className="mb-4"
-            >
-              {showFilters ? <PanelLeftClose className="w-4 h-4" /> : <PanelLeft className="w-4 h-4" />}
-            </Button>
-
-            {showFilters && (
-              <div className="w-72 glass rounded-xl border border-border overflow-hidden">
-                <FilterSidebar filters={filters} onFiltersChange={setFilters} />
+          <TabsContent value="search" className="mt-4 space-y-6">
+            <QuickSearchForm
+              filters={filters}
+              onFiltersChange={setFilters}
+              onSearch={handleSearch}
+              isSearching={isSearching}
+            />
+            <div className="flex gap-6">
+              <div className="flex-shrink-0">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setShowFilters(!showFilters)}
+                  className="mb-4"
+                >
+                  {showFilters ? <PanelLeftClose className="w-4 h-4" /> : <PanelLeft className="w-4 h-4" />}
+                </Button>
+                {showFilters && (
+                  <div className="w-72 glass rounded-xl border border-border overflow-hidden">
+                    <FilterSidebar filters={filters} onFiltersChange={setFilters} />
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+              <div className="flex-1 min-w-0">
+                <ResultsTable results={results} isLoading={isSearching} />
+              </div>
+            </div>
+          </TabsContent>
 
-          {/* Results */}
-          <div className="flex-1 min-w-0">
-            <ResultsTable results={results} isLoading={isSearching} />
-          </div>
-        </div>
+          <TabsContent value="bulk" className="mt-4">
+            <div className="max-w-2xl mx-auto">
+              <BulkCSVImport />
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

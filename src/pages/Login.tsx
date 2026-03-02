@@ -4,18 +4,34 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { signIn, signUp } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success(isLogin ? "Welcome back!" : "Account created!");
-    navigate("/");
+    setLoading(true);
+    try {
+      if (isLogin) {
+        const { error } = await signIn(email, password);
+        if (error) { toast.error(error.message); return; }
+        toast.success("Welcome back!");
+        navigate("/");
+      } else {
+        const { error } = await signUp(email, password);
+        if (error) { toast.error(error.message); return; }
+        toast.success("Check your email to confirm your account!");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -52,7 +68,7 @@ const Login = () => {
         </div>
       </div>
 
-      {/* Right panel - form */}
+      {/* Right panel */}
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-sm">
           <div className="lg:hidden mb-8 text-center">
@@ -95,6 +111,7 @@ const Login = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   className="pl-10 pr-10 bg-surface-2 border-border focus:border-primary focus:ring-primary/20"
                   required
+                  minLength={6}
                 />
                 <button
                   type="button"
@@ -106,16 +123,8 @@ const Login = () => {
               </div>
             </div>
 
-            {isLogin && (
-              <div className="text-right">
-                <button type="button" className="text-xs text-primary hover:underline">
-                  Forgot password?
-                </button>
-              </div>
-            )}
-
-            <Button variant="hero" className="w-full" type="submit">
-              {isLogin ? "Sign In" : "Create Account"}
+            <Button variant="hero" className="w-full" type="submit" disabled={loading}>
+              {loading ? "Please wait..." : isLogin ? "Sign In" : "Create Account"}
               <ArrowRight className="w-4 h-4" />
             </Button>
           </form>
