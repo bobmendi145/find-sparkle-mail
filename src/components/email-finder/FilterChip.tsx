@@ -7,9 +7,9 @@ interface FilterChipProps {
 
 const FilterChip = ({ label, onRemove }: FilterChipProps) => {
   return (
-    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-primary/10 text-primary text-xs font-medium border border-primary/20 transition-colors hover:bg-primary/20">
+    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-frappe-brown-light text-foreground text-xs font-medium border border-border transition-colors hover:bg-muted">
       {label}
-      <button onClick={onRemove} className="hover:text-foreground transition-colors">
+      <button onClick={onRemove} className="text-muted-foreground hover:text-foreground transition-colors">
         <X className="w-3 h-3" />
       </button>
     </span>
