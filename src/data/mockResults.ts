@@ -11,14 +11,39 @@ const locations = ["San Francisco, CA", "New York, NY", "Austin, TX", "London, U
 const industries = ["Technology/SaaS", "Finance/Banking", "Healthcare", "E-Commerce", "Education", "Real Estate", "Insurance", "Manufacturing"];
 const sizes = ["11-50", "51-200", "201-500", "501-1000", "1001-5000"];
 
+function normalizeDomain(raw: string): string {
+  const value = raw.trim().toLowerCase();
+  if (!value) return "";
+
+  const withProtocol = /^https?:\/\//.test(value) ? value : `https://${value}`;
+
+  try {
+    const hostname = new URL(withProtocol).hostname.replace(/^www\./, "");
+    return hostname;
+  } catch {
+    return value
+      .replace(/^https?:\/\//, "")
+      .replace(/^www\./, "")
+      .split(/[/?#]/)[0]
+      .trim();
+  }
+}
+
+function isValidDomain(domain: string): boolean {
+  return /^[a-z0-9-]+(\.[a-z0-9-]+)+$/i.test(domain);
+}
+
 export function generateMockResults(count: number = 25, filters?: SearchFilters): EmailResult[] {
   const pick = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
 
-  // Determine the domain to use — if the user specified one, use it for all results
-  const filterDomain = filters?.domain?.trim().toLowerCase() || "";
+  const normalizedDomain = normalizeDomain(filters?.domain || "");
+  const filterDomain = isValidDomain(normalizedDomain) ? normalizedDomain : "";
   // Derive a company name from the domain if user provided one
   const filterCompany = filterDomain
-    ? filterDomain.replace(/\.(com|io|co|dev|org|net|ai)$/i, "").replace(/[-_]/g, " ").replace(/\b\w/g, c => c.toUpperCase())
+    ? filterDomain
+        .replace(/\.(com|io|co|dev|org|net|ai)$/i, "")
+        .replace(/[-_]/g, " ")
+        .replace(/\b\w/g, (c) => c.toUpperCase())
     : "";
 
   const filterFirstName = filters?.firstName?.trim() || "";
