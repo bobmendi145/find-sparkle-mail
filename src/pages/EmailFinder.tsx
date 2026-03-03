@@ -19,10 +19,10 @@ const EmailFinder = () => {
   const handleSearch = useCallback(() => {
     setIsSearching(true);
     setTimeout(() => {
-      setResults(generateMockResults(10000));
+      setResults(generateMockResults(10000, filters));
       setIsSearching(false);
     }, 1500);
-  }, []);
+  }, [filters]);
 
   return (
     <div className="min-h-screen bg-background">
