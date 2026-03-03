@@ -12,33 +12,33 @@ const industries = ["Technology/SaaS", "Finance/Banking", "Healthcare", "E-Comme
 const sizes = ["11-50", "51-200", "201-500", "501-1000", "1001-5000"];
 
 export function generateMockResults(count: number = 25): EmailResult[] {
+  const pick = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
+
   return Array.from({ length: count }, (_, i) => {
-    const fIdx = i % firstNames.length;
-    const lIdx = (i * 7) % lastNames.length;
-    const cIdx = i % companies.length;
-    const fn = firstNames[fIdx];
-    const ln = lastNames[lIdx];
+    const fn = pick(firstNames);
+    const ln = pick(lastNames);
+    const cIdx = Math.floor(Math.random() * companies.length);
     const domain = domains[cIdx];
     const patterns = [`${fn.toLowerCase()}.${ln.toLowerCase()}`, `${fn[0].toLowerCase()}${ln.toLowerCase()}`, `${fn.toLowerCase()}`];
-    const email = `${patterns[i % 3]}@${domain}`;
+    const email = `${pick(patterns)}@${domain}`;
 
-    const linkedinUrl = i % 3 !== 2 ? `https://linkedin.com/in/${fn.toLowerCase()}-${ln.toLowerCase()}-${Math.floor(Math.random() * 900 + 100)}` : undefined;
+    const linkedinUrl = Math.random() > 0.33 ? `https://linkedin.com/in/${fn.toLowerCase()}-${ln.toLowerCase()}-${Math.floor(Math.random() * 900 + 100)}` : undefined;
 
     return {
-      id: `res-${i}`,
+      id: `res-${i}-${Math.random().toString(36).slice(2, 6)}`,
       firstName: fn,
       lastName: ln,
       email,
-      title: titles[i % titles.length],
+      title: pick(titles),
       company: companies[cIdx],
       domain,
       confidence: Math.floor(70 + Math.random() * 30),
-      status: (["valid", "risky", "unknown"] as const)[i % 3],
-      department: depts[i % depts.length],
-      seniority: seniorities[i % seniorities.length],
-      location: locations[i % locations.length],
-      industry: industries[i % industries.length],
-      companySize: sizes[i % sizes.length],
+      status: pick(["valid", "risky", "unknown"] as ("valid" | "risky" | "unknown")[]),
+      department: pick(depts),
+      seniority: pick(seniorities),
+      location: pick(locations),
+      industry: pick(industries),
+      companySize: pick(sizes),
       linkedinUrl,
     };
   });

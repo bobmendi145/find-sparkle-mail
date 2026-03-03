@@ -100,7 +100,7 @@ const EmailFinder = () => {
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <ResultsTable results={results} isLoading={isSearching} />
+                  <ResultsTable results={results} isLoading={isSearching} onRefresh={handleSearch} />
                 </div>
               </div>
             </TabsContent>

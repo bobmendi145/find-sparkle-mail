@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Download, Copy, CheckCircle2, AlertTriangle, HelpCircle, ChevronDown, ChevronUp, Linkedin } from "lucide-react";
+import { Download, Copy, CheckCircle2, AlertTriangle, HelpCircle, ChevronDown, ChevronUp, Linkedin, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -9,6 +9,7 @@ import { toast } from "sonner";
 interface ResultsTableProps {
   results: EmailResult[];
   isLoading: boolean;
+  onRefresh?: () => void;
 }
 
 const StatusIcon = ({ status }: { status: EmailResult["status"] }) => {
@@ -27,7 +28,7 @@ const ConfidenceBadge = ({ score }: { score: number }) => {
   );
 };
 
-const ResultsTable = ({ results, isLoading }: ResultsTableProps) => {
+const ResultsTable = ({ results, isLoading, onRefresh }: ResultsTableProps) => {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [sortField, setSortField] = useState<"confidence" | "email">("confidence");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
@@ -103,6 +104,11 @@ const ResultsTable = ({ results, isLoading }: ResultsTableProps) => {
           {selected.size > 0 && <span className="text-primary"> · {selected.size} selected</span>}
         </p>
         <div className="flex gap-2">
+          {onRefresh && (
+            <Button variant="outline" size="sm" onClick={onRefresh} disabled={isLoading}>
+              <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} /> Refresh
+            </Button>
+          )}
           {selected.size > 0 && (
             <Button variant="outline" size="sm" onClick={copyEmails}>
               <Copy className="w-3.5 h-3.5" /> Copy
