@@ -26,7 +26,7 @@ const EmailFinder = () => {
   const handleSearch = useCallback(() => {
     setIsSearching(true);
     setTimeout(() => {
-      setResults(generateMockResults(200));
+      setResults(generateMockResults(10000));
       setIsSearching(false);
     }, 1500);
   }, []);
