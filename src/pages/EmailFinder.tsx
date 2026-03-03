@@ -26,7 +26,7 @@ const EmailFinder = () => {
   const handleSearch = useCallback(() => {
     setIsSearching(true);
     setTimeout(() => {
-      setResults(generateMockResults(30));
+      setResults(generateMockResults(200));
       setIsSearching(false);
     }, 1500);
   }, []);
@@ -62,7 +62,7 @@ const EmailFinder = () => {
         </div>
       </nav>
 
-      <HeroSection onScrollToSearch={scrollToSearch} />
+      {!user && <HeroSection onScrollToSearch={scrollToSearch} />}
 
       {user ? (
         <div ref={searchRef} className="max-w-[1200px] mx-auto px-6 pb-20">
