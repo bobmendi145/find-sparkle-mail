@@ -14,6 +14,56 @@ export type Database = {
   }
   public: {
     Tables: {
+      business_leads: {
+        Row: {
+          created_at: string
+          emails: string[] | null
+          id: string
+          industry: string | null
+          job_id: string
+          location: string | null
+          name: string
+          raw_data: Json | null
+          source: string | null
+          user_id: string
+          website: string | null
+        }
+        Insert: {
+          created_at?: string
+          emails?: string[] | null
+          id?: string
+          industry?: string | null
+          job_id: string
+          location?: string | null
+          name: string
+          raw_data?: Json | null
+          source?: string | null
+          user_id: string
+          website?: string | null
+        }
+        Update: {
+          created_at?: string
+          emails?: string[] | null
+          id?: string
+          industry?: string | null
+          job_id?: string
+          location?: string | null
+          name?: string
+          raw_data?: Json | null
+          source?: string | null
+          user_id?: string
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_leads_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "search_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       companies: {
         Row: {
           created_at: string
@@ -110,6 +160,27 @@ export type Database = {
         }
         Relationships: []
       }
+      domain_patterns: {
+        Row: {
+          discovered_at: string
+          domain: string
+          id: string
+          pattern: string
+        }
+        Insert: {
+          discovered_at?: string
+          domain: string
+          id?: string
+          pattern: string
+        }
+        Update: {
+          discovered_at?: string
+          domain?: string
+          id?: string
+          pattern?: string
+        }
+        Relationships: []
+      }
       people: {
         Row: {
           company_id: string | null
@@ -175,6 +246,71 @@ export type Database = {
           },
         ]
       }
+      people_leads: {
+        Row: {
+          company: string | null
+          country: string | null
+          created_at: string
+          domain: string | null
+          first_name: string | null
+          full_name: string
+          generated_emails: string[] | null
+          id: string
+          job_id: string
+          last_name: string | null
+          primary_email: string | null
+          raw_data: Json | null
+          role: string | null
+          source_query: string | null
+          source_url: string | null
+          user_id: string
+        }
+        Insert: {
+          company?: string | null
+          country?: string | null
+          created_at?: string
+          domain?: string | null
+          first_name?: string | null
+          full_name: string
+          generated_emails?: string[] | null
+          id?: string
+          job_id: string
+          last_name?: string | null
+          primary_email?: string | null
+          raw_data?: Json | null
+          role?: string | null
+          source_query?: string | null
+          source_url?: string | null
+          user_id: string
+        }
+        Update: {
+          company?: string | null
+          country?: string | null
+          created_at?: string
+          domain?: string | null
+          first_name?: string | null
+          full_name?: string
+          generated_emails?: string[] | null
+          id?: string
+          job_id?: string
+          last_name?: string | null
+          primary_email?: string | null
+          raw_data?: Json | null
+          role?: string | null
+          source_query?: string | null
+          source_url?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "people_leads_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "search_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       saved_filters: {
         Row: {
           created_at: string
@@ -222,6 +358,42 @@ export type Database = {
           filters_json?: Json
           id?: string
           results_count?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      search_jobs: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          input_json: Json
+          results_count: number | null
+          status: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          input_json?: Json
+          results_count?: number | null
+          status?: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          input_json?: Json
+          results_count?: number | null
+          status?: string
+          type?: string
           user_id?: string
         }
         Relationships: []

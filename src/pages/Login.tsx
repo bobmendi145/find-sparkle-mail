@@ -40,13 +40,13 @@ const Login = () => {
       <div className="hidden lg:flex flex-1 relative items-center justify-center border-r border-border">
         <div className="max-w-md text-center px-12">
           <div className="w-14 h-14 rounded-xl bg-primary flex items-center justify-center mx-auto mb-8">
-            <span className="text-primary-foreground font-bold text-xl font-serif">EF</span>
+            <span className="text-primary-foreground font-bold text-xl font-serif">LP</span>
           </div>
           <h2 className="font-serif text-3xl font-bold text-foreground mb-4">
-            Email Finder
+            LeadPattern
           </h2>
           <p className="text-muted-foreground leading-relaxed">
-            Find verified emails with 200+ enrichment filters. Search by name, domain, title, tech stack, funding stage, and more.
+            Find business and people emails with your own scraping &amp; enrichment logic. No paid APIs needed.
           </p>
           <div className="frappe-divider" />
           <div className="flex justify-center gap-8 text-sm text-muted-foreground">
@@ -71,7 +71,7 @@ const Login = () => {
         <div className="w-full max-w-sm">
           <div className="lg:hidden mb-8 text-center">
             <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center mx-auto mb-4">
-              <span className="text-primary-foreground font-bold text-sm font-serif">EF</span>
+              <span className="text-primary-foreground font-bold text-sm font-serif">LP</span>
             </div>
           </div>
 
@@ -79,7 +79,7 @@ const Login = () => {
             {isLogin ? "Welcome back" : "Create account"}
           </h1>
           <p className="text-sm text-muted-foreground mb-8">
-            {isLogin ? "Sign in to access your email finder" : "Start finding verified emails today"}
+            {isLogin ? "Sign in to access LeadPattern" : "Start finding leads today"}
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
