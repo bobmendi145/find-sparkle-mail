@@ -1,11 +1,8 @@
 /**
  * Edge Function: process-search-job
- * 
- * Processes a search job (business or people) asynchronously.
- * Uses pluggable provider interfaces so real scraping/search
- * can be swapped in later (n8n webhooks, Apify, etc.).
- * 
- * Called with: { job_id: string }
+ *
+ * Processes a search job (business or people) using Firecrawl for
+ * real web search and scraping. Called with: { job_id: string }
  */
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
@@ -16,146 +13,90 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-// ─── Provider Interfaces ─────────────────────────────────────────────
-// TODO: Replace stub implementations with real providers (n8n webhooks,
-// HTTP scrapers, search APIs) by swapping the functions below.
+// ─── Firecrawl helpers ───────────────────────────────────────────────
 
-interface SearchResult {
-  title: string;
-  snippet: string;
-  url: string;
-}
+async function firecrawlSearch(
+  apiKey: string,
+  query: string,
+  limit: number
+): Promise<{ url: string; title: string; description: string; markdown?: string }[]> {
+  const res = await fetch("https://api.firecrawl.dev/v1/search", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      query,
+      limit,
+      scrapeOptions: { formats: ["markdown"] },
+    }),
+  });
 
-interface Business {
-  name: string;
-  industry: string;
-  location: string;
-  website: string;
-}
-
-// ─── STUB: Business Search Provider ──────────────────────────────────
-// TODO: Replace with real Google Maps API, n8n webhook, or scraper.
-// Input: { industry: string, location: string, max_results: number }
-// Output: Business[]
-function stubBusinessSearch(
-  industry: string,
-  location: string,
-  maxResults: number
-): Business[] {
-  const businessNames = [
-    "Alpha Solutions", "Beta Corp", "Gamma Industries", "Delta Services",
-    "Epsilon Tech", "Zeta Group", "Theta Labs", "Iota Partners",
-    "Kappa Consulting", "Lambda Digital", "Mu Analytics", "Nu Systems",
-    "Xi Ventures", "Omicron Works", "Pi Dynamics", "Rho Engineering",
-    "Sigma Finance", "Tau Medical", "Upsilon Energy", "Phi Design",
-  ];
-
-  const tlds = [".com", ".io", ".co", ".net", ".org"];
-  const count = Math.min(maxResults, businessNames.length);
-  const results: Business[] = [];
-
-  for (let i = 0; i < count; i++) {
-    const name = businessNames[i];
-    const slug = name.toLowerCase().replace(/\s+/g, "");
-    const tld = tlds[i % tlds.length];
-    results.push({
-      name,
-      industry,
-      location,
-      website: `https://${slug}${tld}`,
-    });
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(`Firecrawl search failed [${res.status}]: ${JSON.stringify(json)}`);
   }
-  return results;
-}
 
-// ─── STUB: Website Email Scraper ─────────────────────────────────────
-// TODO: Replace with real HTTP scraper (Apify, BrightData, custom).
-// Input: website URL
-// Output: string[] of emails found on /contact, /about, /team, /impressum pages
-function stubScrapeEmails(website: string): string[] {
-  const domain = website.replace(/^https?:\/\//, "").replace(/\/$/, "");
-  const names = ["info", "contact", "hello", "support", "admin", "sales"];
-  const count = 1 + Math.floor(Math.random() * 3);
-  const emails: string[] = [];
-  for (let i = 0; i < count; i++) {
-    emails.push(`${names[i % names.length]}@${domain}`);
-  }
-  return emails;
-}
-
-// ─── STUB: People Search Provider ────────────────────────────────────
-// TODO: Replace with real search API call (SerpAPI, n8n webhook, etc.).
-// Input: query string (Google-style)
-// Output: SearchResult[]
-function stubPeopleSearch(query: string, maxProfiles: number): SearchResult[] {
-  const mockPeople = [
-    { first: "Alice", last: "Chen", title: "VP Engineering", company: "TechCorp" },
-    { first: "Bob", last: "Kumar", title: "CTO", company: "DataFlow" },
-    { first: "Carol", last: "Smith", title: "Director of Sales", company: "SalesForce" },
-    { first: "Dave", last: "Johnson", title: "CEO", company: "StartupXYZ" },
-    { first: "Eve", last: "Williams", title: "Head of Marketing", company: "GrowthCo" },
-    { first: "Frank", last: "Garcia", title: "VP Product", company: "ProductLabs" },
-    { first: "Grace", last: "Lee", title: "Engineering Manager", company: "CodeBase" },
-    { first: "Hank", last: "Brown", title: "Sales Director", company: "DealMaker" },
-    { first: "Ivy", last: "Taylor", title: "CMO", company: "BrandWorks" },
-    { first: "Jack", last: "Wilson", title: "CFO", company: "FinanceHub" },
-    { first: "Kate", last: "Martinez", title: "COO", company: "OpsFlow" },
-    { first: "Leo", last: "Anderson", title: "VP HR", company: "PeopleCo" },
-    { first: "Mia", last: "Thomas", title: "Data Scientist", company: "AILabs" },
-    { first: "Nick", last: "Jackson", title: "DevOps Lead", company: "CloudOps" },
-    { first: "Olivia", last: "White", title: "UX Director", company: "DesignCo" },
-  ];
-
-  const count = Math.min(maxProfiles, mockPeople.length);
-  return mockPeople.slice(0, count).map((p) => ({
-    title: `${p.first} ${p.last} – ${p.title} | ${p.company} | LinkedIn`,
-    snippet: `${p.first} ${p.last} is a ${p.title} at ${p.company}. Experienced professional with strong background.`,
-    url: `https://linkedin.com/in/${p.first.toLowerCase()}-${p.last.toLowerCase()}-${Math.floor(Math.random() * 900 + 100)}`,
+  return (json.data || []).map((r: any) => ({
+    url: r.url || "",
+    title: r.title || "",
+    description: r.description || "",
+    markdown: r.markdown || "",
   }));
 }
 
-// ─── STUB: Domain Resolver ───────────────────────────────────────────
-// TODO: Replace with Clearbit, Google search, or custom domain lookup.
-// Input: company name
-// Output: domain string
-function stubGetDomain(company: string): string {
-  const knownDomains: Record<string, string> = {
-    techcorp: "techcorp.com",
-    dataflow: "dataflow.io",
-    salesforce: "salesforce.com",
-    startupxyz: "startupxyz.com",
-    growthco: "growthco.io",
-    productlabs: "productlabs.com",
-    codebase: "codebase.dev",
-    dealmaker: "dealmaker.com",
-    brandworks: "brandworks.io",
-    financehub: "financehub.com",
-    opsflow: "opsflow.co",
-    peopleco: "peopleco.com",
-    ailabs: "ailabs.io",
-    cloudops: "cloudops.dev",
-    designco: "designco.com",
+async function firecrawlScrape(
+  apiKey: string,
+  url: string
+): Promise<{ markdown: string; html: string; links: string[] }> {
+  const res = await fetch("https://api.firecrawl.dev/v1/scrape", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      url,
+      formats: ["markdown", "links"],
+      onlyMainContent: true,
+    }),
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(`Firecrawl scrape failed [${res.status}]: ${JSON.stringify(json)}`);
+  }
+
+  const data = json.data || json;
+  return {
+    markdown: data.markdown || "",
+    html: data.html || "",
+    links: data.links || [],
   };
-  const key = company.toLowerCase().replace(/[^a-z0-9]/g, "");
-  return knownDomains[key] || `${key}.com`;
 }
 
-// ─── Name Parsing ────────────────────────────────────────────────────
-function parseSearchResult(result: SearchResult) {
-  // Title format: "First Last – Title | Company | LinkedIn"
-  const titleParts = result.title.split(/\s*[–\-|]\s*/);
-  const fullName = (titleParts[0] || "").trim();
-  const role = (titleParts[1] || "").trim();
-  const company = (titleParts[2] || "").trim();
+// ─── Email extraction from scraped content ───────────────────────────
 
-  const nameParts = fullName.split(/\s+/);
-  const firstName = nameParts[0] || "";
-  const lastName = nameParts.slice(1).join(" ") || "";
+const EMAIL_REGEX = /[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g;
 
-  return { fullName, firstName, lastName, role, company };
+function extractEmails(text: string): string[] {
+  const matches = text.match(EMAIL_REGEX) || [];
+  // Deduplicate and filter out common false positives
+  const unique = [...new Set(matches.map((e) => e.toLowerCase()))];
+  return unique.filter(
+    (e) =>
+      !e.endsWith(".png") &&
+      !e.endsWith(".jpg") &&
+      !e.endsWith(".gif") &&
+      !e.includes("example.com") &&
+      !e.includes("sentry.io") &&
+      !e.includes("wixpress.com")
+  );
 }
 
-// ─── Email Generation ────────────────────────────────────────────────
+// ─── Email generation for people leads ───────────────────────────────
+
 type EmailPattern = "FIRST_LAST" | "FIRST" | "F_LAST" | "FIRSTL" | "LAST";
 
 function generateEmails(
@@ -175,29 +116,32 @@ function generateEmails(
   ];
 }
 
-function selectPrimaryEmail(
-  emails: { pattern: EmailPattern; email: string }[],
-  knownPattern?: EmailPattern
-): string {
-  if (knownPattern) {
-    const match = emails.find((e) => e.pattern === knownPattern);
-    if (match) return match.email;
-  }
-  // Default to first.last pattern
-  return emails[0]?.email || "";
+// ─── Parse LinkedIn-style search result ──────────────────────────────
+
+function parseSearchResult(result: { title: string; description: string; url: string }) {
+  // Try to extract name from title like "First Last - Title - Company | LinkedIn"
+  const titleParts = result.title.split(/\s*[–\-|]\s*/);
+  const fullName = (titleParts[0] || "").trim();
+  const role = (titleParts[1] || "").trim();
+  const company = (titleParts[2] || "").replace(/LinkedIn/i, "").trim();
+
+  const nameParts = fullName.split(/\s+/);
+  const firstName = nameParts[0] || "";
+  const lastName = nameParts.slice(1).join(" ") || "";
+
+  return { fullName, firstName, lastName, role, company };
 }
 
-// ─── STUB: Pattern Discovery ─────────────────────────────────────────
-// TODO: Replace with real HTTP fetch + email regex extraction.
-// Input: domain
-// Output: discovered EmailPattern or null
-function stubDiscoverPattern(_domain: string): EmailPattern | null {
-  const patterns: EmailPattern[] = ["FIRST_LAST", "F_LAST", "FIRST", "FIRSTL", "LAST"];
-  // Randomly pick a pattern to simulate discovery
-  return patterns[Math.floor(Math.random() * patterns.length)];
+// ─── Domain resolution from company name ─────────────────────────────
+
+function guessDomain(company: string): string {
+  if (!company) return "";
+  const slug = company.toLowerCase().replace(/[^a-z0-9]/g, "");
+  return `${slug}.com`;
 }
 
 // ─── Main Handler ────────────────────────────────────────────────────
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -212,7 +156,11 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Use service role to bypass RLS for writing results
+    const firecrawlKey = Deno.env.get("FIRECRAWL_API_KEY");
+    if (!firecrawlKey) {
+      throw new Error("FIRECRAWL_API_KEY not configured");
+    }
+
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, serviceRoleKey);
@@ -243,23 +191,43 @@ Deno.serve(async (req) => {
     if (job.type === "business") {
       // ─── Business Email Search ───────────────────────────
       const { industry, location, max_results = 10 } = input;
+      const query = `${industry} businesses in ${location} contact email`;
 
-      const businesses = stubBusinessSearch(industry, location, max_results);
+      console.log("Firecrawl business search:", query);
+      const searchResults = await firecrawlSearch(firecrawlKey, query, max_results);
 
-      const leadsToInsert = businesses.map((biz) => {
-        const emails = stubScrapeEmails(biz.website);
-        return {
+      const leadsToInsert = [];
+
+      for (const result of searchResults) {
+        // Try to scrape each result URL for emails
+        let emails: string[] = [];
+        let scrapedData: any = {};
+
+        try {
+          const scraped = await firecrawlScrape(firecrawlKey, result.url);
+          emails = extractEmails(scraped.markdown);
+          scrapedData = { markdown_preview: scraped.markdown.slice(0, 500) };
+        } catch (err) {
+          console.warn(`Failed to scrape ${result.url}:`, err);
+          // Also try extracting emails from the search result description
+          emails = extractEmails(result.description + " " + (result.markdown || ""));
+        }
+
+        // Extract business name from title
+        const name = result.title.split(/\s*[–\-|:]\s*/)[0]?.trim() || result.url;
+
+        leadsToInsert.push({
           job_id: job_id,
           user_id: job.user_id,
-          name: biz.name,
-          industry: biz.industry,
-          location: biz.location,
-          website: biz.website,
+          name,
+          industry,
+          location,
+          website: result.url,
           emails,
-          source: "stub_provider",
-          raw_data: biz,
-        };
-      });
+          source: "firecrawl",
+          raw_data: { ...result, ...scrapedData },
+        });
+      }
 
       if (leadsToInsert.length > 0) {
         const { error: insertError } = await supabase
@@ -274,24 +242,23 @@ Deno.serve(async (req) => {
       // ─── People Email Search ─────────────────────────────
       const { role, company, country, max_profiles = 10 } = input;
 
-      // Build query string
       let query = `site:linkedin.com/in "${role}"`;
       if (company) query += ` "${company}"`;
-      else if (country) query += ` "${country}"`;
+      if (country) query += ` "${country}"`;
 
-      const searchResults = stubPeopleSearch(query, max_profiles);
+      console.log("Firecrawl people search:", query);
+      const searchResults = await firecrawlSearch(firecrawlKey, query, max_profiles);
 
       const leadsToInsert = [];
 
       for (const result of searchResults) {
         const parsed = parseSearchResult(result);
         const companyName = parsed.company || company || "";
-        const domain = companyName ? stubGetDomain(companyName) : "";
+        let domain = guessDomain(companyName);
 
+        // Check cached domain pattern
         let discoveredPattern: EmailPattern | null = null;
-
         if (domain) {
-          // Check if we already have a pattern for this domain
           const { data: existing } = await supabase
             .from("domain_patterns")
             .select("pattern")
@@ -300,21 +267,49 @@ Deno.serve(async (req) => {
 
           if (existing) {
             discoveredPattern = existing.pattern as EmailPattern;
-          } else {
-            // Try to discover pattern
-            discoveredPattern = stubDiscoverPattern(domain);
-            if (discoveredPattern) {
-              await supabase.from("domain_patterns").upsert({
-                domain,
-                pattern: discoveredPattern,
-                discovered_at: new Date().toISOString(),
-              }, { onConflict: "domain" });
+          }
+        }
+
+        // Try to find real domain by scraping company website
+        if (companyName && !discoveredPattern) {
+          try {
+            const companySearch = await firecrawlSearch(
+              firecrawlKey,
+              `${companyName} official website`,
+              1
+            );
+            if (companySearch.length > 0) {
+              const url = new URL(companySearch[0].url);
+              domain = url.hostname.replace(/^www\./, "");
+
+              // Try to discover email pattern from website
+              const scraped = await firecrawlScrape(firecrawlKey, companySearch[0].url);
+              const foundEmails = extractEmails(scraped.markdown);
+              if (foundEmails.length > 0) {
+                // Try to detect pattern from found emails
+                const sampleEmail = foundEmails[0];
+                const localPart = sampleEmail.split("@")[0];
+                if (localPart.includes(".")) discoveredPattern = "FIRST_LAST";
+                else discoveredPattern = "FIRST";
+              }
+
+              if (discoveredPattern) {
+                await supabase.from("domain_patterns").upsert(
+                  { domain, pattern: discoveredPattern, discovered_at: new Date().toISOString() },
+                  { onConflict: "domain" }
+                );
+              }
             }
+          } catch (err) {
+            console.warn(`Domain discovery failed for ${companyName}:`, err);
           }
         }
 
         const emails = generateEmails(parsed.firstName, parsed.lastName, domain);
-        const primaryEmail = selectPrimaryEmail(emails, discoveredPattern || undefined);
+        const primaryEmail =
+          discoveredPattern
+            ? emails.find((e) => e.pattern === discoveredPattern)?.email || emails[0]?.email || ""
+            : emails[0]?.email || "";
 
         leadsToInsert.push({
           job_id: job_id,
@@ -358,13 +353,17 @@ Deno.serve(async (req) => {
       JSON.stringify({ success: true, results_count: resultsCount }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
-
   } catch (error) {
     console.error("Job processing error:", error);
 
     // Try to mark job as failed
     try {
-      const { job_id } = await (error as any);
+      const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+      const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+      const supabase = createClient(supabaseUrl, serviceRoleKey);
+
+      // Re-parse to get job_id for error marking
+      // Note: we can't re-read the body, so just log the error
     } catch {
       // ignore
     }
