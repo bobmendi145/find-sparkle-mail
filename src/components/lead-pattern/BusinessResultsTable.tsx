@@ -28,6 +28,7 @@ interface FlatRow {
 const BusinessResultsTable = ({ leads, isLoading, onSelectLead }: BusinessResultsTableProps) => {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [page, setPage] = useState(0);
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
   const pageSize = 50;
 
   // Flatten emails
