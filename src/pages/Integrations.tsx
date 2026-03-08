@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ChevronRight, LogOut, Plug, Trash2, Check, Cloud, Mail, Clock } from "lucide-react";
+import { ChevronRight, LogOut, Plug, Trash2, Check, Cloud, Mail, Clock, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,6 +24,7 @@ import {
   deleteSesConnection,
 } from "@/lib/api/ses";
 import ScheduledEmailsQueue from "@/components/lead-pattern/ScheduledEmailsQueue";
+import EmailTemplateManager from "@/components/lead-pattern/EmailTemplateManager";
 
 const Integrations = () => {
   const { user, signOut } = useAuth();
@@ -302,6 +303,19 @@ const Integrations = () => {
             </p>
           </div>
           <ScheduledEmailsQueue />
+        </section>
+
+        {/* ─── Email Templates ─── */}
+        <section>
+          <div className="mb-4">
+            <h2 className="font-serif text-lg font-bold text-foreground flex items-center gap-2">
+              <FileText className="w-4 h-4 text-primary" /> Email Templates
+            </h2>
+            <p className="text-xs text-muted-foreground mt-1">
+              Create reusable templates to speed up email composition.
+            </p>
+          </div>
+          <EmailTemplateManager />
         </section>
 
         <Separator />

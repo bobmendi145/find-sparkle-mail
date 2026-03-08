@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Mail, Send, X, Clock, CalendarIcon } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Mail, Send, X, Clock, CalendarIcon, FileText } from "lucide-react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,6 +21,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { sendSesEmail } from "@/lib/api/ses";
 import { createScheduledEmail } from "@/lib/api/scheduledEmails";
+import { EmailTemplate, getEmailTemplates, createEmailTemplate } from "@/lib/api/emailTemplates";
 import { cn } from "@/lib/utils";
 
 interface SendEmailDialogProps {
@@ -40,8 +41,18 @@ const SendEmailDialog = ({ open, onOpenChange, recipients }: SendEmailDialogProp
   const [scheduleDate, setScheduleDate] = useState<Date>();
   const [scheduleHour, setScheduleHour] = useState("09");
   const [scheduleMinute, setScheduleMinute] = useState("00");
+  const [templates, setTemplates] = useState<EmailTemplate[]>([]);
+  const [savingTemplate, setSavingTemplate] = useState(false);
+  const [templateName, setTemplateName] = useState("");
+  const [showSaveTemplate, setShowSaveTemplate] = useState(false);
 
   const validEmails = recipients.filter((e) => e && e !== "—" && e.includes("@"));
+
+  useEffect(() => {
+    if (open) {
+      getEmailTemplates().then(setTemplates).catch(console.error);
+    }
+  }, [open]);
 
   const buildHtml = () =>
     body
@@ -101,6 +112,33 @@ const SendEmailDialog = ({ open, onOpenChange, recipients }: SendEmailDialogProp
     setBody("");
     setScheduleMode(false);
     setScheduleDate(undefined);
+    setShowSaveTemplate(false);
+    setTemplateName("");
+  };
+
+  const handleApplyTemplate = (t: EmailTemplate) => {
+    setSubject(t.subject);
+    setBody(t.body_text);
+    toast.success(`Template "${t.name}" applied`);
+  };
+
+  const handleSaveAsTemplate = async () => {
+    if (!templateName.trim()) {
+      toast.error("Enter a template name");
+      return;
+    }
+    setSavingTemplate(true);
+    try {
+      const created = await createEmailTemplate(templateName.trim(), subject.trim(), body);
+      setTemplates((prev) => [created, ...prev]);
+      setShowSaveTemplate(false);
+      setTemplateName("");
+      toast.success("Template saved");
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setSavingTemplate(false);
+    }
   };
 
   const handleSubmit = () => {
@@ -148,6 +186,31 @@ const SendEmailDialog = ({ open, onOpenChange, recipients }: SendEmailDialogProp
               )}
             </div>
           </div>
+
+          {/* Template picker */}
+          {templates.length > 0 && (
+            <div>
+              <Label className="text-xs">Load Template</Label>
+              <Select onValueChange={(val) => {
+                const t = templates.find((t) => t.id === val);
+                if (t) handleApplyTemplate(t);
+              }}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="Choose a saved template..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {templates.map((t) => (
+                    <SelectItem key={t.id} value={t.id}>
+                      <div className="flex items-center gap-2">
+                        <FileText className="w-3 h-3 text-muted-foreground" />
+                        {t.name}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           {/* Subject */}
           <div>
@@ -238,6 +301,33 @@ const SendEmailDialog = ({ open, onOpenChange, recipients }: SendEmailDialogProp
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+          )}
+          {/* Save as template */}
+          {(subject.trim() || body.trim()) && (
+            <div className="flex items-center gap-2">
+              {showSaveTemplate ? (
+                <>
+                  <Input
+                    placeholder="Template name..."
+                    value={templateName}
+                    onChange={(e) => setTemplateName(e.target.value)}
+                    className="h-8 text-xs flex-1"
+                    maxLength={100}
+                  />
+                  <Button size="sm" variant="outline" onClick={handleSaveAsTemplate} disabled={savingTemplate}>
+                    <FileText className="w-3 h-3" />
+                    {savingTemplate ? "Saving…" : "Save"}
+                  </Button>
+                  <Button size="sm" variant="ghost" onClick={() => { setShowSaveTemplate(false); setTemplateName(""); }}>
+                    <X className="w-3 h-3" />
+                  </Button>
+                </>
+              ) : (
+                <Button size="sm" variant="link" className="text-xs px-0" onClick={() => setShowSaveTemplate(true)}>
+                  <FileText className="w-3 h-3" /> Save as template
+                </Button>
+              )}
             </div>
           )}
         </div>
