@@ -41,8 +41,18 @@ const SendEmailDialog = ({ open, onOpenChange, recipients }: SendEmailDialogProp
   const [scheduleDate, setScheduleDate] = useState<Date>();
   const [scheduleHour, setScheduleHour] = useState("09");
   const [scheduleMinute, setScheduleMinute] = useState("00");
+  const [templates, setTemplates] = useState<EmailTemplate[]>([]);
+  const [savingTemplate, setSavingTemplate] = useState(false);
+  const [templateName, setTemplateName] = useState("");
+  const [showSaveTemplate, setShowSaveTemplate] = useState(false);
 
   const validEmails = recipients.filter((e) => e && e !== "—" && e.includes("@"));
+
+  useEffect(() => {
+    if (open) {
+      getEmailTemplates().then(setTemplates).catch(console.error);
+    }
+  }, [open]);
 
   const buildHtml = () =>
     body
