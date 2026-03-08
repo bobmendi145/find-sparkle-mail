@@ -39,9 +39,7 @@ const Login = () => {
       {/* Left panel — Frappe editorial style */}
       <div className="hidden lg:flex flex-1 relative items-center justify-center border-r border-border">
         <div className="max-w-md text-center px-12">
-          <div className="w-14 h-14 rounded-xl bg-primary flex items-center justify-center mx-auto mb-8">
-            <span className="text-primary-foreground font-bold text-xl font-serif">LP</span>
-          </div>
+          <img src="/logo.png" alt="LeadPattern" className="w-14 h-14 mx-auto mb-8" />
           <h2 className="font-serif text-3xl font-bold text-foreground mb-4">
             LeadPattern
           </h2>
