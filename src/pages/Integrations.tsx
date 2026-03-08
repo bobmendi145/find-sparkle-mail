@@ -305,6 +305,19 @@ const Integrations = () => {
           <ScheduledEmailsQueue />
         </section>
 
+        {/* ─── Email Templates ─── */}
+        <section>
+          <div className="mb-4">
+            <h2 className="font-serif text-lg font-bold text-foreground flex items-center gap-2">
+              <FileText className="w-4 h-4 text-primary" /> Email Templates
+            </h2>
+            <p className="text-xs text-muted-foreground mt-1">
+              Create reusable templates to speed up email composition.
+            </p>
+          </div>
+          <EmailTemplateManager />
+        </section>
+
         <Separator />
         <section>
           <div className="mb-6">
