@@ -5,6 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
 import { PeopleLead } from "@/lib/api/leadpattern";
+import ExportToCrmButton from "./ExportToCrmButton";
 
 interface PeopleResultsTableProps {
   leads: PeopleLead[];
