@@ -99,11 +99,25 @@ const PeopleResultsTable = ({ leads, isLoading, onSelectLead }: PeopleResultsTab
             }}
             disabled={leads.length === 0}
           />
+          <Button variant="outline" size="sm" onClick={() => setEmailDialogOpen(true)}>
+            <Mail className="w-3.5 h-3.5" /> Send Email
+          </Button>
           <Button variant="outline" size="sm" onClick={exportCSV}>
             <Download className="w-3.5 h-3.5" /> Export CSV
           </Button>
         </div>
       </div>
+
+      <SendEmailDialog
+        open={emailDialogOpen}
+        onOpenChange={setEmailDialogOpen}
+        recipients={
+          leads
+            .filter((l) => selected.size === 0 || selected.has(l.id))
+            .flatMap((l) => [l.primary_email, ...(l.generated_emails || [])])
+            .filter(Boolean) as string[]
+        }
+      />
 
       <div className="frappe-card overflow-hidden">
         <Table>
