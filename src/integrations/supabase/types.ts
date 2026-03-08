@@ -410,6 +410,48 @@ export type Database = {
         }
         Relationships: []
       }
+      scheduled_emails: {
+        Row: {
+          body_html: string
+          created_at: string
+          error_message: string | null
+          id: string
+          recipients: string[]
+          send_at: string
+          sent_count: number | null
+          status: string
+          subject: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          body_html: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          recipients?: string[]
+          send_at: string
+          sent_count?: number | null
+          status?: string
+          subject: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          body_html?: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          recipients?: string[]
+          send_at?: string
+          sent_count?: number | null
+          status?: string
+          subject?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       search_history: {
         Row: {
           created_at: string
