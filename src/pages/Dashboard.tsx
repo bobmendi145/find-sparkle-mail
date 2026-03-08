@@ -22,6 +22,7 @@ import {
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState("business");
   const [businessJobs, setBusinessJobs] = useState<SearchJob[]>([]);
