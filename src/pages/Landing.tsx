@@ -117,7 +117,7 @@ const Landing = () => {
           <div className="bg-card border border-border rounded-xl p-10 max-w-sm mx-auto text-left">
             <div className="text-center mb-8">
               <div className="flex items-baseline justify-center gap-1 mb-1">
-                <span className="font-serif text-5xl font-bold text-foreground">$125</span>
+                <span className="text-5xl font-bold text-foreground tracking-tight" style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700 }}>$125</span>
                 <span className="text-muted-foreground text-sm">/mo</span>
               </div>
               <p className="text-xs text-muted-foreground">Billed monthly. Cancel anytime.</p>
