@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ChevronRight, LogOut, Plug, Trash2, Check, Cloud, Mail } from "lucide-react";
+import { ChevronRight, LogOut, Plug, Trash2, Check, Cloud, Mail, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
