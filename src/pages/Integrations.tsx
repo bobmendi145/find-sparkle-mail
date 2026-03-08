@@ -319,6 +319,19 @@ const Integrations = () => {
           <EmailTemplateManager />
         </section>
 
+        {/* ─── Email Tracking Analytics ─── */}
+        <section>
+          <div className="mb-4">
+            <h2 className="font-serif text-lg font-bold text-foreground flex items-center gap-2">
+              <BarChart3 className="w-4 h-4 text-primary" /> Email Tracking
+            </h2>
+            <p className="text-xs text-muted-foreground mt-1">
+              Track opens and clicks for emails sent to your leads.
+            </p>
+          </div>
+          <EmailTrackingAnalytics />
+        </section>
+
         <Separator />
         <section>
           <div className="mb-6">
