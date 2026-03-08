@@ -11,9 +11,7 @@ const Landing = () => {
       <nav className="border-b border-border bg-background sticky top-0 z-40">
         <div className="max-w-[1100px] mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-xs font-serif">LP</span>
-            </div>
+            <img src="/logo.png" alt="LeadPattern" className="w-7 h-7" />
             <span className="font-serif font-bold text-foreground text-lg">LeadPattern</span>
           </div>
           <div className="flex items-center gap-3">
