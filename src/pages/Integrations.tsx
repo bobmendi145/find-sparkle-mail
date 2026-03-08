@@ -291,9 +291,20 @@ const Integrations = () => {
           )}
         </section>
 
-        <Separator />
+        {/* ─── Scheduled Emails ─── */}
+        <section>
+          <div className="mb-4">
+            <h2 className="font-serif text-lg font-bold text-foreground flex items-center gap-2">
+              <Clock className="w-4 h-4 text-primary" /> Scheduled Emails
+            </h2>
+            <p className="text-xs text-muted-foreground mt-1">
+              Emails queued for delivery. Checked every minute.
+            </p>
+          </div>
+          <ScheduledEmailsQueue />
+        </section>
 
-        {/* ─── CRM Integrations ─── */}
+        <Separator />
         <section>
           <div className="mb-6">
             <h2 className="font-serif text-2xl font-bold text-foreground mb-2">CRM Integrations</h2>
