@@ -17,6 +17,9 @@ const Landing = () => {
             <span className="font-serif font-bold text-foreground text-lg">LeadPattern</span>
           </div>
           <div className="flex items-center gap-3">
+            <Button variant="ghost" size="sm" onClick={() => document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" })}>
+              Pricing
+            </Button>
             <Button variant="ghost" size="sm" onClick={() => navigate("/login")}>
               Sign in
             </Button>
