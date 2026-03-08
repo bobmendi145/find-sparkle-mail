@@ -102,7 +102,7 @@ serve(async (req) => {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) throw new Error("Unauthorized");
 
-    const { to, subject, body_html } = await req.json();
+    const { to, subject, body_html, tracked_payloads } = await req.json();
     if (!to?.length || !subject || !body_html) {
       throw new Error("Missing required fields: to, subject, body_html");
     }
@@ -126,16 +126,27 @@ serve(async (req) => {
     const errors: string[] = [];
     let sent = 0;
 
-    // Send to each recipient individually (SES best practice for lead outreach)
+    // Build a lookup of tracked HTML per recipient
+    const trackedMap = new Map<string, string>();
+    if (tracked_payloads?.length) {
+      for (const tp of tracked_payloads) {
+        trackedMap.set(tp.to, tp.body_html);
+      }
+    }
+
+    // Send to each recipient individually
     for (const recipient of to) {
       try {
+        // Use tracked HTML if available, otherwise fallback to original
+        const htmlBody = trackedMap.get(recipient) || body_html;
+
         const params = new URLSearchParams({
           Action: "SendEmail",
           "Source": sender_email,
           "Destination.ToAddresses.member.1": recipient,
           "Message.Subject.Data": subject,
           "Message.Subject.Charset": "UTF-8",
-          "Message.Body.Html.Data": body_html,
+          "Message.Body.Html.Data": htmlBody,
           "Message.Body.Html.Charset": "UTF-8",
           Version: "2010-12-01",
         });
