@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
-import { ChevronRight, LogOut } from "lucide-react";
+import { ChevronRight, LogOut, Plug } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
 import BusinessSearchForm from "@/components/lead-pattern/BusinessSearchForm";
@@ -21,6 +22,7 @@ import {
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState("business");
   const [businessJobs, setBusinessJobs] = useState<SearchJob[]>([]);
@@ -153,6 +155,9 @@ const Dashboard = () => {
             <span className="text-muted-foreground">Dashboard</span>
           </div>
           <div className="flex items-center gap-3">
+            <Button variant="ghost" size="sm" onClick={() => navigate("/integrations")}>
+              <Plug className="w-3.5 h-3.5" /> Integrations
+            </Button>
             <span className="text-xs text-muted-foreground">{user.email}</span>
             <Button variant="ghost" size="sm" onClick={() => signOut()}>
               <LogOut className="w-3.5 h-3.5" /> Sign out

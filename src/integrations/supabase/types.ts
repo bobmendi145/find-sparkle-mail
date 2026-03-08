@@ -124,6 +124,39 @@ export type Database = {
         }
         Relationships: []
       }
+      crm_connections: {
+        Row: {
+          api_key: string
+          created_at: string
+          id: string
+          instance_url: string | null
+          is_active: boolean
+          provider: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          api_key: string
+          created_at?: string
+          id?: string
+          instance_url?: string | null
+          is_active?: boolean
+          provider: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          api_key?: string
+          created_at?: string
+          id?: string
+          instance_url?: string | null
+          is_active?: boolean
+          provider?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       csv_imports: {
         Row: {
           created_at: string
