@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
-import { ChevronRight, LogOut } from "lucide-react";
+import { ChevronRight, LogOut, Plug } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
 import BusinessSearchForm from "@/components/lead-pattern/BusinessSearchForm";
