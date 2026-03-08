@@ -2,6 +2,7 @@
  * AWS SES Email Sending API layer
  */
 import { supabase } from "@/integrations/supabase/client";
+import { injectTracking, createTrackingRecord } from "@/lib/api/emailTracking";
 
 export interface SesConnection {
   id: string;
