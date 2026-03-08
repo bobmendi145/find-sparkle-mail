@@ -112,6 +112,33 @@ const SendEmailDialog = ({ open, onOpenChange, recipients }: SendEmailDialogProp
     setBody("");
     setScheduleMode(false);
     setScheduleDate(undefined);
+    setShowSaveTemplate(false);
+    setTemplateName("");
+  };
+
+  const handleApplyTemplate = (t: EmailTemplate) => {
+    setSubject(t.subject);
+    setBody(t.body_text);
+    toast.success(`Template "${t.name}" applied`);
+  };
+
+  const handleSaveAsTemplate = async () => {
+    if (!templateName.trim()) {
+      toast.error("Enter a template name");
+      return;
+    }
+    setSavingTemplate(true);
+    try {
+      const created = await createEmailTemplate(templateName.trim(), subject.trim(), body);
+      setTemplates((prev) => [created, ...prev]);
+      setShowSaveTemplate(false);
+      setTemplateName("");
+      toast.success("Template saved");
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setSavingTemplate(false);
+    }
   };
 
   const handleSubmit = () => {
