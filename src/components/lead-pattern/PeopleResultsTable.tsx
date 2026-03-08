@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { Download, Copy, Linkedin, Users } from "lucide-react";
+import { Download, Copy, Linkedin, Users, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
 import { PeopleLead } from "@/lib/api/leadpattern";
 import ExportToCrmButton from "./ExportToCrmButton";
+import SendEmailDialog from "./SendEmailDialog";
 
 interface PeopleResultsTableProps {
   leads: PeopleLead[];
@@ -16,6 +17,7 @@ interface PeopleResultsTableProps {
 const PeopleResultsTable = ({ leads, isLoading, onSelectLead }: PeopleResultsTableProps) => {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [page, setPage] = useState(0);
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
   const pageSize = 50;
 
   const totalPages = Math.ceil(leads.length / pageSize);
@@ -97,11 +99,25 @@ const PeopleResultsTable = ({ leads, isLoading, onSelectLead }: PeopleResultsTab
             }}
             disabled={leads.length === 0}
           />
+          <Button variant="outline" size="sm" onClick={() => setEmailDialogOpen(true)}>
+            <Mail className="w-3.5 h-3.5" /> Send Email
+          </Button>
           <Button variant="outline" size="sm" onClick={exportCSV}>
             <Download className="w-3.5 h-3.5" /> Export CSV
           </Button>
         </div>
       </div>
+
+      <SendEmailDialog
+        open={emailDialogOpen}
+        onOpenChange={setEmailDialogOpen}
+        recipients={
+          leads
+            .filter((l) => selected.size === 0 || selected.has(l.id))
+            .flatMap((l) => [l.primary_email, ...(l.generated_emails || [])])
+            .filter(Boolean) as string[]
+        }
+      />
 
       <div className="frappe-card overflow-hidden">
         <Table>

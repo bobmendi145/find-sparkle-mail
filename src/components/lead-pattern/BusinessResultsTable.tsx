@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { toast } from "sonner";
 import { BusinessLead } from "@/lib/api/leadpattern";
 import ExportToCrmButton from "./ExportToCrmButton";
+import SendEmailDialog from "./SendEmailDialog";
 
 interface BusinessResultsTableProps {
   leads: BusinessLead[];
@@ -27,6 +28,7 @@ interface FlatRow {
 const BusinessResultsTable = ({ leads, isLoading, onSelectLead }: BusinessResultsTableProps) => {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [page, setPage] = useState(0);
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
   const pageSize = 50;
 
   // Flatten emails
@@ -127,11 +129,25 @@ const BusinessResultsTable = ({ leads, isLoading, onSelectLead }: BusinessResult
             }}
             disabled={flatRows.length === 0}
           />
+          <Button variant="outline" size="sm" onClick={() => setEmailDialogOpen(true)}>
+            <Mail className="w-3.5 h-3.5" /> Send Email
+          </Button>
           <Button variant="outline" size="sm" onClick={exportCSV}>
             <Download className="w-3.5 h-3.5" /> Export CSV
           </Button>
         </div>
       </div>
+
+      <SendEmailDialog
+        open={emailDialogOpen}
+        onOpenChange={setEmailDialogOpen}
+        recipients={
+          flatRows
+            .filter((r) => selected.size === 0 || selected.has(r.leadId))
+            .map((r) => r.email)
+            .filter((e) => e !== "—")
+        }
+      />
 
       <div className="frappe-card overflow-hidden">
         <Table>

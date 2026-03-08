@@ -214,6 +214,45 @@ export type Database = {
         }
         Relationships: []
       }
+      email_provider_connections: {
+        Row: {
+          access_key_id: string
+          created_at: string
+          id: string
+          is_active: boolean
+          provider: string
+          region: string
+          secret_access_key: string
+          sender_email: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_key_id: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          provider?: string
+          region?: string
+          secret_access_key: string
+          sender_email: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_key_id?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          provider?: string
+          region?: string
+          secret_access_key?: string
+          sender_email?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       people: {
         Row: {
           company_id: string | null
