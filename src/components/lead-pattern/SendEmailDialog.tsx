@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Mail, Send, X, Clock, CalendarIcon } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Mail, Send, X, Clock, CalendarIcon, FileText } from "lucide-react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,6 +21,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { sendSesEmail } from "@/lib/api/ses";
 import { createScheduledEmail } from "@/lib/api/scheduledEmails";
+import { EmailTemplate, getEmailTemplates, createEmailTemplate } from "@/lib/api/emailTemplates";
 import { cn } from "@/lib/utils";
 
 interface SendEmailDialogProps {
