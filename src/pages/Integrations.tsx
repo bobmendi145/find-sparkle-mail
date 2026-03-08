@@ -25,6 +25,7 @@ import {
 } from "@/lib/api/ses";
 import ScheduledEmailsQueue from "@/components/lead-pattern/ScheduledEmailsQueue";
 import EmailTemplateManager from "@/components/lead-pattern/EmailTemplateManager";
+import EmailTrackingAnalytics from "@/components/lead-pattern/EmailTrackingAnalytics";
 
 const Integrations = () => {
   const { user, signOut } = useAuth();
