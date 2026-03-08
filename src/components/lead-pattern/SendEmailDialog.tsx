@@ -187,6 +187,31 @@ const SendEmailDialog = ({ open, onOpenChange, recipients }: SendEmailDialogProp
             </div>
           </div>
 
+          {/* Template picker */}
+          {templates.length > 0 && (
+            <div>
+              <Label className="text-xs">Load Template</Label>
+              <Select onValueChange={(val) => {
+                const t = templates.find((t) => t.id === val);
+                if (t) handleApplyTemplate(t);
+              }}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="Choose a saved template..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {templates.map((t) => (
+                    <SelectItem key={t.id} value={t.id}>
+                      <div className="flex items-center gap-2">
+                        <FileText className="w-3 h-3 text-muted-foreground" />
+                        {t.name}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
           {/* Subject */}
           <div>
             <Label className="text-xs">Subject</Label>
