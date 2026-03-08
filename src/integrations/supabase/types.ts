@@ -283,6 +283,95 @@ export type Database = {
         }
         Relationships: []
       }
+      email_tracking: {
+        Row: {
+          clicks: number
+          created_at: string
+          first_clicked_at: string | null
+          first_opened_at: string | null
+          id: string
+          last_clicked_at: string | null
+          last_opened_at: string | null
+          message_id: string | null
+          opens: number
+          recipient: string
+          sent_at: string
+          subject: string
+          tracking_id: string
+          user_id: string
+        }
+        Insert: {
+          clicks?: number
+          created_at?: string
+          first_clicked_at?: string | null
+          first_opened_at?: string | null
+          id?: string
+          last_clicked_at?: string | null
+          last_opened_at?: string | null
+          message_id?: string | null
+          opens?: number
+          recipient: string
+          sent_at?: string
+          subject?: string
+          tracking_id?: string
+          user_id: string
+        }
+        Update: {
+          clicks?: number
+          created_at?: string
+          first_clicked_at?: string | null
+          first_opened_at?: string | null
+          id?: string
+          last_clicked_at?: string | null
+          last_opened_at?: string | null
+          message_id?: string | null
+          opens?: number
+          recipient?: string
+          sent_at?: string
+          subject?: string
+          tracking_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      email_tracking_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          ip_address: string | null
+          tracking_id: string
+          url: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          tracking_id: string
+          url?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          tracking_id?: string
+          url?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_tracking_events_tracking_id_fkey"
+            columns: ["tracking_id"]
+            isOneToOne: false
+            referencedRelation: "email_tracking"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       people: {
         Row: {
           company_id: string | null

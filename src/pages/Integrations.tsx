@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ChevronRight, LogOut, Plug, Trash2, Check, Cloud, Mail, Clock, FileText } from "lucide-react";
+import { ChevronRight, LogOut, Plug, Trash2, Check, Cloud, Mail, Clock, FileText, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,6 +25,7 @@ import {
 } from "@/lib/api/ses";
 import ScheduledEmailsQueue from "@/components/lead-pattern/ScheduledEmailsQueue";
 import EmailTemplateManager from "@/components/lead-pattern/EmailTemplateManager";
+import EmailTrackingAnalytics from "@/components/lead-pattern/EmailTrackingAnalytics";
 
 const Integrations = () => {
   const { user, signOut } = useAuth();
@@ -316,6 +317,19 @@ const Integrations = () => {
             </p>
           </div>
           <EmailTemplateManager />
+        </section>
+
+        {/* ─── Email Tracking Analytics ─── */}
+        <section>
+          <div className="mb-4">
+            <h2 className="font-serif text-lg font-bold text-foreground flex items-center gap-2">
+              <BarChart3 className="w-4 h-4 text-primary" /> Email Tracking
+            </h2>
+            <p className="text-xs text-muted-foreground mt-1">
+              Track opens and clicks for emails sent to your leads.
+            </p>
+          </div>
+          <EmailTrackingAnalytics />
         </section>
 
         <Separator />

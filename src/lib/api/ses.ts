@@ -2,6 +2,7 @@
  * AWS SES Email Sending API layer
  */
 import { supabase } from "@/integrations/supabase/client";
+import { injectTracking, createTrackingRecord } from "@/lib/api/emailTracking";
 
 export interface SesConnection {
   id: string;
@@ -111,8 +112,25 @@ export interface SendEmailPayload {
 }
 
 export async function sendSesEmail(payload: SendEmailPayload): Promise<{ success: boolean; sent: number; errors: string[] }> {
+  // Create tracking records and inject tracking for each recipient
+  const trackedPayloads: { to: string; body_html: string; tracking_id: string }[] = [];
+
+  for (const recipient of payload.to) {
+    const trackingId = crypto.randomUUID();
+    const trackedHtml = injectTracking(payload.body_html, trackingId);
+    trackedPayloads.push({ to: recipient, body_html: trackedHtml, tracking_id: trackingId });
+
+    // Create tracking record (fire and forget - don't block sending)
+    createTrackingRecord(recipient, payload.subject, trackingId).catch(console.error);
+  }
+
   const { data, error } = await supabase.functions.invoke("send-ses-email", {
-    body: payload,
+    body: {
+      to: payload.to,
+      subject: payload.subject,
+      body_html: payload.body_html,
+      tracked_payloads: trackedPayloads,
+    },
   });
   if (error) throw new Error(error.message);
   return data;
