@@ -73,9 +73,7 @@ const Integrations = () => {
       <nav className="border-b border-border bg-background sticky top-0 z-40">
         <div className="max-w-[1200px] mx-auto px-6 h-12 flex items-center justify-between">
           <div className="flex items-center gap-2 text-sm">
-            <div className="w-6 h-6 rounded-md bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-xs">LP</span>
-            </div>
+            <img src="/logo.png" alt="LeadPattern" className="w-6 h-6" />
             <span className="font-semibold text-foreground cursor-pointer" onClick={() => navigate("/dashboard")}>
               LeadPattern
             </span>
