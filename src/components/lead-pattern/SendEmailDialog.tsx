@@ -303,6 +303,33 @@ const SendEmailDialog = ({ open, onOpenChange, recipients }: SendEmailDialogProp
               </Select>
             </div>
           )}
+          {/* Save as template */}
+          {(subject.trim() || body.trim()) && (
+            <div className="flex items-center gap-2">
+              {showSaveTemplate ? (
+                <>
+                  <Input
+                    placeholder="Template name..."
+                    value={templateName}
+                    onChange={(e) => setTemplateName(e.target.value)}
+                    className="h-8 text-xs flex-1"
+                    maxLength={100}
+                  />
+                  <Button size="sm" variant="outline" onClick={handleSaveAsTemplate} disabled={savingTemplate}>
+                    <FileText className="w-3 h-3" />
+                    {savingTemplate ? "Saving…" : "Save"}
+                  </Button>
+                  <Button size="sm" variant="ghost" onClick={() => { setShowSaveTemplate(false); setTemplateName(""); }}>
+                    <X className="w-3 h-3" />
+                  </Button>
+                </>
+              ) : (
+                <Button size="sm" variant="link" className="text-xs px-0" onClick={() => setShowSaveTemplate(true)}>
+                  <FileText className="w-3 h-3" /> Save as template
+                </Button>
+              )}
+            </div>
+          )}
         </div>
 
         <DialogFooter>
