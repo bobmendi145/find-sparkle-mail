@@ -3,7 +3,6 @@ import { ChevronRight, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
-import { useNavigate } from "react-router-dom";
 import BusinessSearchForm from "@/components/lead-pattern/BusinessSearchForm";
 import PeopleSearchForm from "@/components/lead-pattern/PeopleSearchForm";
 import BusinessResultsTable from "@/components/lead-pattern/BusinessResultsTable";
@@ -21,8 +20,7 @@ import {
 } from "@/lib/api/leadpattern";
 
 const Dashboard = () => {
-  const { user, signOut, loading: authLoading } = useAuth();
-  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
 
   const [activeTab, setActiveTab] = useState("business");
   const [businessJobs, setBusinessJobs] = useState<SearchJob[]>([]);
@@ -34,12 +32,7 @@ const Dashboard = () => {
   const [loadingResults, setLoadingResults] = useState(false);
   const [detailLead, setDetailLead] = useState<Record<string, any> | null>(null);
 
-  // Redirect if not authenticated
-  useEffect(() => {
-    if (!authLoading && !user) {
-      navigate("/login");
-    }
-  }, [user, authLoading, navigate]);
+  // Load jobs on mount
 
   // Load jobs on mount
   useEffect(() => {
@@ -143,14 +136,6 @@ const Dashboard = () => {
 
     return () => clearInterval(pollInterval);
   }, []);
-
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
 
   if (!user) return null;
 

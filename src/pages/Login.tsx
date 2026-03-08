@@ -23,7 +23,7 @@ const Login = () => {
         const { error } = await signIn(email, password);
         if (error) { toast.error(error.message); return; }
         toast.success("Welcome back!");
-        navigate("/");
+        navigate("/dashboard");
       } else {
         const { error } = await signUp(email, password);
         if (error) { toast.error(error.message); return; }
