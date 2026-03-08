@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { toast } from "sonner";
 import { BusinessLead } from "@/lib/api/leadpattern";
 import ExportToCrmButton from "./ExportToCrmButton";
+import SendEmailDialog from "./SendEmailDialog";
 
 interface BusinessResultsTableProps {
   leads: BusinessLead[];
