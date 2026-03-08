@@ -115,6 +115,18 @@ const BusinessResultsTable = ({ leads, isLoading, onSelectLead }: BusinessResult
               <Copy className="w-3.5 h-3.5" /> Copy
             </Button>
           )}
+          <ExportToCrmButton
+            getLeads={() => {
+              const rows = flatRows.filter((r) => selected.size === 0 || selected.has(r.leadId));
+              return rows.map((r) => ({
+                email: r.email !== "—" ? r.email : undefined,
+                full_name: r.name,
+                company: r.name,
+                website: r.website || undefined,
+              }));
+            }}
+            disabled={flatRows.length === 0}
+          />
           <Button variant="outline" size="sm" onClick={exportCSV}>
             <Download className="w-3.5 h-3.5" /> Export CSV
           </Button>

@@ -83,6 +83,20 @@ const PeopleResultsTable = ({ leads, isLoading, onSelectLead }: PeopleResultsTab
               <Copy className="w-3.5 h-3.5" /> Copy
             </Button>
           )}
+          <ExportToCrmButton
+            getLeads={() => {
+              const rows = leads.filter((l) => selected.size === 0 || selected.has(l.id));
+              return rows.map((l) => ({
+                email: l.primary_email || undefined,
+                first_name: l.first_name || undefined,
+                last_name: l.last_name || undefined,
+                full_name: l.full_name,
+                company: l.company || undefined,
+                role: l.role || undefined,
+              }));
+            }}
+            disabled={leads.length === 0}
+          />
           <Button variant="outline" size="sm" onClick={exportCSV}>
             <Download className="w-3.5 h-3.5" /> Export CSV
           </Button>
