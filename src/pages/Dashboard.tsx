@@ -21,8 +21,7 @@ import {
 } from "@/lib/api/leadpattern";
 
 const Dashboard = () => {
-  const { user, signOut, loading: authLoading } = useAuth();
-  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
 
   const [activeTab, setActiveTab] = useState("business");
   const [businessJobs, setBusinessJobs] = useState<SearchJob[]>([]);
