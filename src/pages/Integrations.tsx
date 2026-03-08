@@ -24,6 +24,7 @@ import {
   deleteSesConnection,
 } from "@/lib/api/ses";
 import ScheduledEmailsQueue from "@/components/lead-pattern/ScheduledEmailsQueue";
+import EmailTemplateManager from "@/components/lead-pattern/EmailTemplateManager";
 
 const Integrations = () => {
   const { user, signOut } = useAuth();
