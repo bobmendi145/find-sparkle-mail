@@ -154,6 +154,9 @@ const Dashboard = () => {
             <span className="text-muted-foreground">Dashboard</span>
           </div>
           <div className="flex items-center gap-3">
+            <Button variant="ghost" size="sm" onClick={() => navigate("/integrations")}>
+              <Plug className="w-3.5 h-3.5" /> Integrations
+            </Button>
             <span className="text-xs text-muted-foreground">{user.email}</span>
             <Button variant="ghost" size="sm" onClick={() => signOut()}>
               <LogOut className="w-3.5 h-3.5" /> Sign out
