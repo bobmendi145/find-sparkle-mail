@@ -129,11 +129,25 @@ const BusinessResultsTable = ({ leads, isLoading, onSelectLead }: BusinessResult
             }}
             disabled={flatRows.length === 0}
           />
+          <Button variant="outline" size="sm" onClick={() => setEmailDialogOpen(true)}>
+            <Mail className="w-3.5 h-3.5" /> Send Email
+          </Button>
           <Button variant="outline" size="sm" onClick={exportCSV}>
             <Download className="w-3.5 h-3.5" /> Export CSV
           </Button>
         </div>
       </div>
+
+      <SendEmailDialog
+        open={emailDialogOpen}
+        onOpenChange={setEmailDialogOpen}
+        recipients={
+          flatRows
+            .filter((r) => selected.size === 0 || selected.has(r.leadId))
+            .map((r) => r.email)
+            .filter((e) => e !== "—")
+        }
+      />
 
       <div className="frappe-card overflow-hidden">
         <Table>
