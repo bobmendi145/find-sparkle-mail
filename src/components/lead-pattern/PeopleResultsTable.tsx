@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { Download, Copy, Linkedin, Users } from "lucide-react";
+import { Download, Copy, Linkedin, Users, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
 import { PeopleLead } from "@/lib/api/leadpattern";
 import ExportToCrmButton from "./ExportToCrmButton";
+import SendEmailDialog from "./SendEmailDialog";
 
 interface PeopleResultsTableProps {
   leads: PeopleLead[];
