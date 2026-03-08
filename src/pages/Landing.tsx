@@ -100,21 +100,38 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Security */}
-      <section className="py-20 px-6 border-t border-border">
+      {/* Pricing */}
+      <section id="pricing" className="py-20 px-6 border-t border-border">
         <div className="max-w-[600px] mx-auto text-center">
-          <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-6">
-            <Shield className="w-6 h-6 text-primary" />
-          </div>
-          <h2 className="font-serif text-2xl font-bold text-foreground mb-4">
-            Secure & private
+          <p className="frappe-label mb-4">Pricing</p>
+          <h2 className="font-serif text-3xl font-bold text-foreground mb-4">
+            Simple, predictable pricing
           </h2>
-          <p className="text-muted-foreground leading-relaxed mb-8">
-            Your searches and results are private to your account. All data is encrypted and stored securely. We never share or sell your lead data.
+          <p className="text-muted-foreground leading-relaxed mb-10">
+            Unlimited searches, real-time scraping, and CSV exports — everything you need to find leads.
           </p>
-          <Button variant="frappe" size="lg" onClick={() => navigate("/login")}>
-            Create Free Account <ArrowRight className="w-4 h-4" />
-          </Button>
+
+          <div className="bg-card border border-border rounded-xl p-8 max-w-sm mx-auto">
+            <div className="mb-6">
+              <p className="text-sm text-muted-foreground mb-1">Monthly subscription</p>
+              <div className="flex items-baseline justify-center gap-1">
+                <span className="font-serif text-4xl font-bold text-foreground">$125</span>
+                <span className="text-muted-foreground text-sm">/month</span>
+              </div>
+            </div>
+            <ul className="space-y-2.5 text-sm text-muted-foreground text-left mb-8">
+              <li className="flex items-center gap-2"><Zap className="w-3.5 h-3.5 text-primary shrink-0" /> Unlimited business & people searches</li>
+              <li className="flex items-center gap-2"><Zap className="w-3.5 h-3.5 text-primary shrink-0" /> Real-time web scraping via Firecrawl</li>
+              <li className="flex items-center gap-2"><Zap className="w-3.5 h-3.5 text-primary shrink-0" /> CSV export for all results</li>
+              <li className="flex items-center gap-2"><Zap className="w-3.5 h-3.5 text-primary shrink-0" /> Domain pattern detection</li>
+              <li className="flex items-center gap-2"><Shield className="w-3.5 h-3.5 text-primary shrink-0" /> Secure & private data</li>
+            </ul>
+            <div
+              dangerouslySetInnerHTML={{
+                __html: `<stripe-buy-button buy-button-id="buy_btn_1T8kBKGWYSJl4xbWJNXWRmZv" publishable-key="pk_live_51NFOStGWYSJl4xbWyQBoKFeljxEMKuqcHak4hEpEKK7uB3r62PcidnWh916RGdGOT61T3rvZMPQ187zoeAqjeKwJ00CQTw8gww"></stripe-buy-button>`,
+              }}
+            />
+          </div>
         </div>
       </section>
 
