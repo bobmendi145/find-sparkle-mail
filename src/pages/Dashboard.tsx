@@ -147,8 +147,8 @@ const Dashboard = () => {
       <nav className="border-b border-border bg-background sticky top-0 z-40">
         <div className="max-w-[1200px] mx-auto px-6 h-12 flex items-center justify-between">
           <div className="flex items-center gap-2 text-sm">
-            <img src="/logo.png" alt="LeadPattern" className="w-6 h-6" />
-            <span className="font-semibold text-foreground">LeadPattern</span>
+            <img src="/logo.png" alt="Fonatica" className="w-6 h-6" />
+            <span className="font-semibold text-foreground">Fonatica</span>
             <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
             <span className="text-muted-foreground">Dashboard</span>
           </div>

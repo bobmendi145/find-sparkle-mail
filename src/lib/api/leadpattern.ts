@@ -1,5 +1,5 @@
 /**
- * LeadPattern API layer — all Supabase interactions for the lead generation features.
+ * Fonatica API layer — all Supabase interactions for the lead generation features.
  */
 import { supabase } from "@/integrations/supabase/client";
 

@@ -77,7 +77,7 @@ const Login = () => {
             {isLogin ? "Welcome back" : "Create account"}
           </h1>
           <p className="text-sm text-muted-foreground mb-8">
-            {isLogin ? "Sign in to access LeadPattern" : "Start finding leads today"}
+            {isLogin ? "Sign in to access Fonatica" : "Start finding leads today"}
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">

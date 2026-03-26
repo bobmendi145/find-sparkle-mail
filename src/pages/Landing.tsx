@@ -148,9 +148,9 @@ const Landing = () => {
         <div className="max-w-[1100px] mx-auto flex items-center justify-between text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
             <div className="w-5 h-5 rounded bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-[10px] font-serif">LP</span>
+              <span className="text-primary-foreground font-bold text-[10px] font-serif">F</span>
             </div>
-            <span>LeadPattern</span>
+            <span>Fonatica</span>
           </div>
           <span>© {new Date().getFullYear()} All rights reserved.</span>
         </div>
