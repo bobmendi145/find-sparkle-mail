@@ -11,8 +11,8 @@ const Landing = () => {
       <nav className="border-b border-border bg-background sticky top-0 z-40">
         <div className="max-w-[1100px] mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="LeadPattern" className="w-7 h-7" />
-            <span className="font-serif font-bold text-foreground text-lg">LeadPattern</span>
+            <img src="/logo.png" alt="Fonatica" className="w-7 h-7" />
+            <span className="font-serif font-bold text-foreground text-lg">Fonatica</span>
           </div>
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="sm" onClick={() => document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" })}>
