@@ -68,9 +68,7 @@ const Login = () => {
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-sm">
           <div className="lg:hidden mb-8 text-center">
-            <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center mx-auto mb-4">
-              <span className="text-primary-foreground font-bold text-sm font-serif">F</span>
-            </div>
+            <img src="/logo.png" alt="Fonatica" className="w-12 h-12 mx-auto mb-4" />
           </div>
 
           <h1 className="font-serif text-2xl font-bold text-foreground mb-2">
