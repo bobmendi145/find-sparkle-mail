@@ -28,33 +28,56 @@ const Landing = () => {
         </div>
       </nav>
 
-      {/* Hero */}
-      <section className="py-24 px-6">
-        <div className="max-w-[700px] mx-auto text-center">
-          <p className="frappe-label mb-5">Lead Generation Platform</p>
-          <h1 className="font-serif text-4xl md:text-5xl font-bold text-foreground mb-6 leading-tight">
-            Find verified emails for any business or person
-          </h1>
-          <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto mb-10 leading-relaxed">
-            Real-time web scraping and intelligent pattern matching to discover professional email addresses. No stale databases — fresh results every time.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Button variant="frappe" size="lg" onClick={() => navigate("/login")}>
-              <Search className="w-4 h-4" />
-              Start Finding Leads
-            </Button>
-            <Button variant="frappe-outline" size="lg" onClick={() => document.getElementById("features")?.scrollIntoView({ behavior: "smooth" })}>
-              Learn More
-              <ArrowRight className="w-4 h-4" />
-            </Button>
+      {/* Hero — split layout */}
+      <section className="min-h-[calc(100vh-57px)] flex flex-col lg:flex-row">
+        {/* Left side */}
+        <div className="flex-1 flex items-center justify-center border-r border-border px-6 py-20 lg:py-0">
+          <div className="max-w-md text-center">
+            <img src="/logo.png" alt="Fonatica" className="w-14 h-14 mx-auto mb-8" />
+            <h1 className="font-serif text-4xl md:text-5xl font-bold text-foreground mb-4 leading-tight">
+              Fonatica
+            </h1>
+            <p className="text-muted-foreground leading-relaxed max-w-sm mx-auto">
+              Find verified emails for any business or person with real-time web scraping & intelligent pattern matching.
+            </p>
+            <div className="frappe-divider" />
+            <div className="flex justify-center gap-8 text-sm text-muted-foreground">
+              <div className="text-center">
+                <div className="text-xl font-semibold text-foreground">Real-time</div>
+                <div>Scraping</div>
+              </div>
+              <div className="text-center">
+                <div className="text-xl font-semibold text-foreground">Pattern</div>
+                <div>Matching</div>
+              </div>
+              <div className="text-center">
+                <div className="text-xl font-semibold text-foreground">CSV</div>
+                <div>Export</div>
+              </div>
+            </div>
           </div>
+        </div>
 
-          <div className="frappe-divider" />
-
-          <div className="flex items-center justify-center gap-10 text-sm text-muted-foreground">
-            <div><span className="text-foreground font-semibold">Real-time</span> scraping</div>
-            <div><span className="text-foreground font-semibold">Pattern</span> matching</div>
-            <div><span className="text-foreground font-semibold">CSV</span> export</div>
+        {/* Right side */}
+        <div className="flex-1 flex items-center justify-center px-6 py-20 lg:py-0 bg-secondary/20">
+          <div className="max-w-sm w-full text-center">
+            <p className="frappe-label mb-5">Lead Generation Platform</p>
+            <h2 className="font-serif text-2xl font-bold text-foreground mb-4">
+              Start finding leads today
+            </h2>
+            <p className="text-sm text-muted-foreground mb-8 leading-relaxed">
+              No stale databases — fresh results every time. Sign up and start searching in seconds.
+            </p>
+            <div className="flex flex-col gap-3">
+              <Button variant="frappe" size="lg" className="w-full" onClick={() => navigate("/login")}>
+                <Search className="w-4 h-4" />
+                Start Finding Leads
+              </Button>
+              <Button variant="frappe-outline" size="lg" className="w-full" onClick={() => document.getElementById("features")?.scrollIntoView({ behavior: "smooth" })}>
+                Learn More
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
         </div>
       </section>
@@ -147,9 +170,7 @@ const Landing = () => {
       <footer className="border-t border-border py-8 px-6">
         <div className="max-w-[1100px] mx-auto flex items-center justify-between text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
-            <div className="w-5 h-5 rounded bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-[10px] font-serif">F</span>
-            </div>
+            <img src="/logo.png" alt="Fonatica" className="w-5 h-5" />
             <span>Fonatica</span>
           </div>
           <span>© {new Date().getFullYear()} All rights reserved.</span>
