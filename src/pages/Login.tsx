@@ -39,9 +39,9 @@ const Login = () => {
       {/* Left panel — Frappe editorial style */}
       <div className="hidden lg:flex flex-1 relative items-center justify-center border-r border-border">
         <div className="max-w-md text-center px-12">
-          <img src="/logo.png" alt="LeadPattern" className="w-14 h-14 mx-auto mb-8" />
+          <img src="/logo.png" alt="Fonatica" className="w-14 h-14 mx-auto mb-8" />
           <h2 className="font-serif text-3xl font-bold text-foreground mb-4">
-            LeadPattern
+            Fonatica
           </h2>
           <p className="text-muted-foreground leading-relaxed">
             Find business and people emails with your own scraping &amp; enrichment logic. No paid APIs needed.
