@@ -15,6 +15,17 @@ export const useSubscription = () => {
     }
 
     const check = async () => {
+      const { data: isAdmin } = await (supabase as any).rpc("has_role", {
+        _user_id: user.id,
+        _role: "admin",
+      });
+
+      if (isAdmin) {
+        setHasActiveSubscription(true);
+        setLoading(false);
+        return;
+      }
+
       const { data } = await supabase
         .from("subscriptions")
         .select("status")
