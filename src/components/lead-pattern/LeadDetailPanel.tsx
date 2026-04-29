@@ -113,10 +113,64 @@ const EmailRow = ({ email, verification, onVerify, verifying }: {
 };
 
 const LeadDetailPanel = ({ lead, onClose }: LeadDetailPanelProps) => {
+  const [verifications, setVerifications] = useState<Record<string, VerifyResult>>({});
+  const [verifyingMap, setVerifyingMap] = useState<Record<string, boolean>>({});
+  const [bulkVerifying, setBulkVerifying] = useState(false);
+
+  const isPerson = !!lead?.full_name;
+  const emails: string[] = lead
+    ? (isPerson
+      ? [lead.primary_email, ...(lead.generated_emails || [])].filter(Boolean)
+      : (lead.emails || []))
+    : [];
+
+  // Load cached verifications & auto-verify any missing ones
+  useEffect(() => {
+    if (!lead || emails.length === 0) return;
+    let cancelled = false;
+    (async () => {
+      const cached = await getCachedVerifications(emails);
+      if (cancelled) return;
+      setVerifications(cached);
+      const missing = emails.filter((e) => !cached[e]);
+      if (missing.length > 0) {
+        setBulkVerifying(true);
+        try {
+          const results = await verifyEmails(missing, false);
+          if (cancelled) return;
+          setVerifications((prev) => {
+            const next = { ...prev };
+            results.forEach((r) => { next[r.email] = r; });
+            return next;
+          });
+        } catch (e: any) {
+          if (!cancelled) toast.error(e.message || "Auto-verify failed");
+        } finally {
+          if (!cancelled) setBulkVerifying(false);
+        }
+      }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lead?.id]);
+
+  const handleVerifyOne = async (email: string, force: boolean) => {
+    setVerifyingMap((m) => ({ ...m, [email]: true }));
+    try {
+      const [result] = await verifyEmails([email], force);
+      if (result) {
+        setVerifications((prev) => ({ ...prev, [email]: result }));
+        toast.success(`${email}: ${result.status}`);
+      }
+    } catch (e: any) {
+      toast.error(e.message || "Verification failed");
+    } finally {
+      setVerifyingMap((m) => ({ ...m, [email]: false }));
+    }
+  };
+
   if (!lead) return null;
 
-  // Detect if it's a person or business lead
-  const isPerson = !!lead.full_name;
   const name = lead.full_name || lead.name || "Unknown";
   const initials = name
     .split(" ")
@@ -125,13 +179,9 @@ const LeadDetailPanel = ({ lead, onClose }: LeadDetailPanelProps) => {
     .toUpperCase()
     .slice(0, 2);
 
-  const emails: string[] = isPerson
-    ? [lead.primary_email, ...(lead.generated_emails || [])].filter(Boolean)
-    : (lead.emails || []);
-
   return (
     <Sheet open={!!lead} onOpenChange={(open) => !open && onClose()}>
-      <SheetContent side="right" className="w-[420px] sm:w-[420px] p-0 border-l border-border">
+      <SheetContent side="right" className="w-[420px] sm:w-[420px] p-0 border-l border-border overflow-y-auto">
         <SheetHeader className="sr-only">
           <SheetTitle>Lead Details</SheetTitle>
         </SheetHeader>
@@ -164,12 +214,25 @@ const LeadDetailPanel = ({ lead, onClose }: LeadDetailPanelProps) => {
         {/* Emails section */}
         {emails.length > 0 && (
           <div className="px-6 py-4">
-            <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium mb-2.5">
-              {isPerson ? "Email Addresses" : "Business Emails"}
-            </p>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex items-center justify-between mb-2.5">
+              <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">
+                {isPerson ? "Email Addresses" : "Business Emails"}
+              </p>
+              {bulkVerifying && (
+                <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+                  <Loader2 className="w-2.5 h-2.5 animate-spin" /> Verifying…
+                </span>
+              )}
+            </div>
+            <div className="flex flex-col gap-1.5">
               {emails.map((email: string, i: number) => (
-                <EmailBadge key={i} email={email} />
+                <EmailRow
+                  key={i}
+                  email={email}
+                  verification={verifications[email]}
+                  verifying={!!verifyingMap[email]}
+                  onVerify={handleVerifyOne}
+                />
               ))}
             </div>
           </div>
