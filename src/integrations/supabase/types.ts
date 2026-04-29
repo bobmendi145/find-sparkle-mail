@@ -372,6 +372,39 @@ export type Database = {
           },
         ]
       }
+      email_verifications: {
+        Row: {
+          email: string
+          id: string
+          is_valid: boolean
+          raw_response: Json
+          status: string
+          sub_status: string | null
+          user_id: string
+          verified_at: string
+        }
+        Insert: {
+          email: string
+          id?: string
+          is_valid?: boolean
+          raw_response?: Json
+          status: string
+          sub_status?: string | null
+          user_id: string
+          verified_at?: string
+        }
+        Update: {
+          email?: string
+          id?: string
+          is_valid?: boolean
+          raw_response?: Json
+          status?: string
+          sub_status?: string | null
+          user_id?: string
+          verified_at?: string
+        }
+        Relationships: []
+      }
       people: {
         Row: {
           company_id: string | null
@@ -667,6 +700,30 @@ export type Database = {
         }
         Relationships: []
       }
+      usage_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          metadata: Json
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          metadata?: Json
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          metadata?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -693,6 +750,25 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      consume_usage: {
+        Args: { _event_type: string; _metadata?: Json; _user_id: string }
+        Returns: {
+          allowed: boolean
+          daily_used: number
+          monthly_used: number
+          reason: string
+        }[]
+      }
+      get_usage_quota: {
+        Args: { _user_id: string }
+        Returns: {
+          daily_limit: number
+          daily_used: number
+          is_admin: boolean
+          monthly_limit: number
+          monthly_used: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
