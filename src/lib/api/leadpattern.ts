@@ -61,9 +61,30 @@ export interface PeopleLead {
 
 // ─── Job Creation & Triggering ───────────────────────────────────────
 
+async function consumeSearchQuota(userId: string, type: "business" | "people", input: any) {
+  const { data, error } = await (supabase as any).rpc("consume_usage", {
+    _user_id: userId,
+    _event_type: "search_job",
+    _metadata: { type, input },
+  });
+  if (error) throw new Error(error.message);
+  const row = data?.[0];
+  if (!row?.allowed) {
+    if (row?.reason === "daily_limit_reached") {
+      throw new Error("Daily search limit reached (350/day). Try again tomorrow.");
+    }
+    if (row?.reason === "monthly_limit_reached") {
+      throw new Error("Monthly search limit reached (10,000/month).");
+    }
+    throw new Error("Search quota exceeded.");
+  }
+}
+
 export async function createBusinessSearchJob(input: BusinessSearchInput): Promise<string> {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Not authenticated");
+
+  await consumeSearchQuota(user.id, "business", input);
 
   const { data, error } = await supabase
     .from("search_jobs")
@@ -89,6 +110,8 @@ export async function createBusinessSearchJob(input: BusinessSearchInput): Promi
 export async function createPeopleSearchJob(input: PeopleSearchInput): Promise<string> {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Not authenticated");
+
+  await consumeSearchQuota(user.id, "people", input);
 
   const { data, error } = await supabase
     .from("search_jobs")
