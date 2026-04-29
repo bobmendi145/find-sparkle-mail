@@ -10,6 +10,7 @@ import BusinessResultsTable from "@/components/lead-pattern/BusinessResultsTable
 import PeopleResultsTable from "@/components/lead-pattern/PeopleResultsTable";
 import JobHistory from "@/components/lead-pattern/JobHistory";
 import LeadDetailPanel from "@/components/lead-pattern/LeadDetailPanel";
+import UsageBadge from "@/components/UsageBadge";
 import {
   getJobs,
   getBusinessLeads,
@@ -153,6 +154,7 @@ const Dashboard = () => {
             <span className="text-muted-foreground">Dashboard</span>
           </div>
           <div className="flex items-center gap-3">
+            <UsageBadge />
             <Button variant="ghost" size="sm" onClick={() => navigate("/integrations")}>
               <Plug className="w-3.5 h-3.5" /> Integrations
             </Button>

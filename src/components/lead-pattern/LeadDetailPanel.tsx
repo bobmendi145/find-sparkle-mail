@@ -1,9 +1,11 @@
-import { X, Mail, Building2, MapPin, Globe, Linkedin, User, Briefcase, Copy, ExternalLink, Tag } from "lucide-react";
+import { useEffect, useState } from "react";
+import { X, Mail, Building2, MapPin, Globe, Linkedin, User, Briefcase, Copy, ExternalLink, Tag, ShieldCheck, ShieldAlert, ShieldQuestion, Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { toast } from "sonner";
+import { verifyEmails, getCachedVerifications, VerifyResult } from "@/lib/api/verify";
 
 interface LeadDetailPanelProps {
   lead: Record<string, any> | null;
@@ -59,29 +61,116 @@ const InfoRow = ({ icon: Icon, label, value, copyable, isLink }: {
   );
 };
 
-const EmailBadge = ({ email }: { email: string }) => {
-  const handleCopy = () => {
-    navigator.clipboard.writeText(email);
-    toast.success("Email copied");
-  };
+const statusMeta = (status?: string) => {
+  switch (status) {
+    case "valid": return { icon: ShieldCheck, label: "Valid", cls: "bg-success/10 text-success border-success/20" };
+    case "invalid": return { icon: ShieldAlert, label: "Invalid", cls: "bg-destructive/10 text-destructive border-destructive/20" };
+    case "catch-all":
+    case "do_not_mail":
+    case "spamtrap":
+    case "abuse":
+    case "unknown": return { icon: ShieldQuestion, label: status === "unknown" ? "Unknown" : status, cls: "bg-warning/10 text-warning border-warning/20" };
+    default: return null;
+  }
+};
 
+const EmailRow = ({ email, verification, onVerify, verifying }: {
+  email: string;
+  verification?: VerifyResult;
+  onVerify: (email: string, force: boolean) => void;
+  verifying: boolean;
+}) => {
+  const meta = statusMeta(verification?.status);
+  const Icon = meta?.icon;
   return (
-    <button
-      onClick={handleCopy}
-      className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-colors cursor-pointer"
-    >
-      <Mail className="w-3 h-3" />
-      {email}
-      <Copy className="w-3 h-3 opacity-50" />
-    </button>
+    <div className="flex items-center justify-between gap-2 px-2.5 py-2 rounded-md bg-muted border border-border">
+      <div className="flex items-center gap-2 min-w-0 flex-1">
+        <Mail className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+        <span className="text-xs font-medium text-foreground truncate">{email}</span>
+        {meta && Icon && (
+          <span className={`inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full border ${meta.cls} shrink-0`}>
+            <Icon className="w-2.5 h-2.5" /> {meta.label}
+          </span>
+        )}
+      </div>
+      <div className="flex items-center gap-1 shrink-0">
+        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => { navigator.clipboard.writeText(email); toast.success("Copied"); }}>
+          <Copy className="w-3 h-3" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-6 w-6"
+          disabled={verifying}
+          title={verification ? "Re-verify" : "Verify"}
+          onClick={() => onVerify(email, !!verification)}
+        >
+          {verifying ? <Loader2 className="w-3 h-3 animate-spin" /> : verification ? <RefreshCw className="w-3 h-3" /> : <ShieldCheck className="w-3 h-3" />}
+        </Button>
+      </div>
+    </div>
   );
 };
 
 const LeadDetailPanel = ({ lead, onClose }: LeadDetailPanelProps) => {
+  const [verifications, setVerifications] = useState<Record<string, VerifyResult>>({});
+  const [verifyingMap, setVerifyingMap] = useState<Record<string, boolean>>({});
+  const [bulkVerifying, setBulkVerifying] = useState(false);
+
+  const isPerson = !!lead?.full_name;
+  const emails: string[] = lead
+    ? (isPerson
+      ? [lead.primary_email, ...(lead.generated_emails || [])].filter(Boolean)
+      : (lead.emails || []))
+    : [];
+
+  // Load cached verifications & auto-verify any missing ones
+  useEffect(() => {
+    if (!lead || emails.length === 0) return;
+    let cancelled = false;
+    (async () => {
+      const cached = await getCachedVerifications(emails);
+      if (cancelled) return;
+      setVerifications(cached);
+      const missing = emails.filter((e) => !cached[e]);
+      if (missing.length > 0) {
+        setBulkVerifying(true);
+        try {
+          const results = await verifyEmails(missing, false);
+          if (cancelled) return;
+          setVerifications((prev) => {
+            const next = { ...prev };
+            results.forEach((r) => { next[r.email] = r; });
+            return next;
+          });
+        } catch (e: any) {
+          if (!cancelled) toast.error(e.message || "Auto-verify failed");
+        } finally {
+          if (!cancelled) setBulkVerifying(false);
+        }
+      }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lead?.id]);
+
+  const handleVerifyOne = async (email: string, force: boolean) => {
+    setVerifyingMap((m) => ({ ...m, [email]: true }));
+    try {
+      const [result] = await verifyEmails([email], force);
+      if (result) {
+        setVerifications((prev) => ({ ...prev, [email]: result }));
+        toast.success(`${email}: ${result.status}`);
+      }
+    } catch (e: any) {
+      toast.error(e.message || "Verification failed");
+    } finally {
+      setVerifyingMap((m) => ({ ...m, [email]: false }));
+    }
+  };
+
   if (!lead) return null;
 
-  // Detect if it's a person or business lead
-  const isPerson = !!lead.full_name;
   const name = lead.full_name || lead.name || "Unknown";
   const initials = name
     .split(" ")
@@ -90,13 +179,9 @@ const LeadDetailPanel = ({ lead, onClose }: LeadDetailPanelProps) => {
     .toUpperCase()
     .slice(0, 2);
 
-  const emails: string[] = isPerson
-    ? [lead.primary_email, ...(lead.generated_emails || [])].filter(Boolean)
-    : (lead.emails || []);
-
   return (
     <Sheet open={!!lead} onOpenChange={(open) => !open && onClose()}>
-      <SheetContent side="right" className="w-[420px] sm:w-[420px] p-0 border-l border-border">
+      <SheetContent side="right" className="w-[420px] sm:w-[420px] p-0 border-l border-border overflow-y-auto">
         <SheetHeader className="sr-only">
           <SheetTitle>Lead Details</SheetTitle>
         </SheetHeader>
@@ -129,12 +214,25 @@ const LeadDetailPanel = ({ lead, onClose }: LeadDetailPanelProps) => {
         {/* Emails section */}
         {emails.length > 0 && (
           <div className="px-6 py-4">
-            <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium mb-2.5">
-              {isPerson ? "Email Addresses" : "Business Emails"}
-            </p>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex items-center justify-between mb-2.5">
+              <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">
+                {isPerson ? "Email Addresses" : "Business Emails"}
+              </p>
+              {bulkVerifying && (
+                <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+                  <Loader2 className="w-2.5 h-2.5 animate-spin" /> Verifying…
+                </span>
+              )}
+            </div>
+            <div className="flex flex-col gap-1.5">
               {emails.map((email: string, i: number) => (
-                <EmailBadge key={i} email={email} />
+                <EmailRow
+                  key={i}
+                  email={email}
+                  verification={verifications[email]}
+                  verifying={!!verifyingMap[email]}
+                  onVerify={handleVerifyOne}
+                />
               ))}
             </div>
           </div>
