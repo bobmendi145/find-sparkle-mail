@@ -1,9 +1,11 @@
-import { X, Mail, Building2, MapPin, Globe, Linkedin, User, Briefcase, Copy, ExternalLink, Tag } from "lucide-react";
+import { useEffect, useState } from "react";
+import { X, Mail, Building2, MapPin, Globe, Linkedin, User, Briefcase, Copy, ExternalLink, Tag, ShieldCheck, ShieldAlert, ShieldQuestion, Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { toast } from "sonner";
+import { verifyEmails, getCachedVerifications, VerifyResult } from "@/lib/api/verify";
 
 interface LeadDetailPanelProps {
   lead: Record<string, any> | null;
@@ -59,21 +61,54 @@ const InfoRow = ({ icon: Icon, label, value, copyable, isLink }: {
   );
 };
 
-const EmailBadge = ({ email }: { email: string }) => {
-  const handleCopy = () => {
-    navigator.clipboard.writeText(email);
-    toast.success("Email copied");
-  };
+const statusMeta = (status?: string) => {
+  switch (status) {
+    case "valid": return { icon: ShieldCheck, label: "Valid", cls: "bg-success/10 text-success border-success/20" };
+    case "invalid": return { icon: ShieldAlert, label: "Invalid", cls: "bg-destructive/10 text-destructive border-destructive/20" };
+    case "catch-all":
+    case "do_not_mail":
+    case "spamtrap":
+    case "abuse":
+    case "unknown": return { icon: ShieldQuestion, label: status === "unknown" ? "Unknown" : status, cls: "bg-warning/10 text-warning border-warning/20" };
+    default: return null;
+  }
+};
 
+const EmailRow = ({ email, verification, onVerify, verifying }: {
+  email: string;
+  verification?: VerifyResult;
+  onVerify: (email: string, force: boolean) => void;
+  verifying: boolean;
+}) => {
+  const meta = statusMeta(verification?.status);
+  const Icon = meta?.icon;
   return (
-    <button
-      onClick={handleCopy}
-      className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-colors cursor-pointer"
-    >
-      <Mail className="w-3 h-3" />
-      {email}
-      <Copy className="w-3 h-3 opacity-50" />
-    </button>
+    <div className="flex items-center justify-between gap-2 px-2.5 py-2 rounded-md bg-muted border border-border">
+      <div className="flex items-center gap-2 min-w-0 flex-1">
+        <Mail className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+        <span className="text-xs font-medium text-foreground truncate">{email}</span>
+        {meta && Icon && (
+          <span className={`inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full border ${meta.cls} shrink-0`}>
+            <Icon className="w-2.5 h-2.5" /> {meta.label}
+          </span>
+        )}
+      </div>
+      <div className="flex items-center gap-1 shrink-0">
+        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => { navigator.clipboard.writeText(email); toast.success("Copied"); }}>
+          <Copy className="w-3 h-3" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-6 w-6"
+          disabled={verifying}
+          title={verification ? "Re-verify" : "Verify"}
+          onClick={() => onVerify(email, !!verification)}
+        >
+          {verifying ? <Loader2 className="w-3 h-3 animate-spin" /> : verification ? <RefreshCw className="w-3 h-3" /> : <ShieldCheck className="w-3 h-3" />}
+        </Button>
+      </div>
+    </div>
   );
 };
 
