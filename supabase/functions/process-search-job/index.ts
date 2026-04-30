@@ -116,10 +116,9 @@ function generateEmails(
   ];
 }
 
-// ─── Parse LinkedIn-style search result ──────────────────────────────
+// ─── Parse LinkedIn-style search result (fallback only) ─────────────
 
 function parseSearchResult(result: { title: string; description: string; url: string }) {
-  // Try to extract name from title like "First Last - Title - Company | LinkedIn"
   const titleParts = result.title.split(/\s*[–\-|]\s*/);
   const fullName = (titleParts[0] || "").trim();
   const role = (titleParts[1] || "").trim();
@@ -132,12 +131,82 @@ function parseSearchResult(result: { title: string; description: string; url: st
   return { fullName, firstName, lastName, role, company };
 }
 
+// ─── Parse LinkedIn profile markdown for current job ────────────────
+
+function parseLinkedInProfile(markdown: string, fallback: { fullName: string; role: string; company: string }) {
+  let fullName = fallback.fullName;
+  let role = fallback.role;
+  let company = fallback.company;
+
+  if (!markdown) return { fullName, role, company };
+
+  // Name: usually first H1 or first non-empty line
+  const h1Match = markdown.match(/^#\s+([^\n]+)/m);
+  if (h1Match) {
+    const candidate = h1Match[1].trim().replace(/\|.*$/, "").trim();
+    if (candidate.length > 1 && candidate.length < 80) fullName = candidate;
+  }
+
+  // Headline: line right after name often "Title at Company" or "Title @ Company"
+  const headlineMatch = markdown.match(/(?:^|\n)([^\n]+?\s+(?:at|@)\s+[^\n]+)/i);
+  if (headlineMatch) {
+    const m = headlineMatch[1].match(/^(.+?)\s+(?:at|@)\s+(.+?)$/i);
+    if (m) {
+      role = m[1].trim().slice(0, 120);
+      company = m[2].trim().replace(/[·|].*$/, "").trim().slice(0, 120);
+    }
+  }
+
+  // Experience section: find first entry with "Present"
+  const expSection = markdown.split(/##?\s*Experience/i)[1];
+  if (expSection) {
+    // Look for pattern like: Title\nCompany · Full-time\n... Present
+    const presentBlock = expSection.match(/([^\n]+)\n([^\n·\-]+)(?:[·\-][^\n]*)?\n[\s\S]{0,400}?Present/i);
+    if (presentBlock) {
+      const t = presentBlock[1].trim();
+      const c = presentBlock[2].trim();
+      if (t && t.length < 120) role = t;
+      if (c && c.length < 120) company = c.replace(/\s*·.*$/, "").trim();
+    }
+  }
+
+  return { fullName, role, company };
+}
+
 // ─── Domain resolution from company name ─────────────────────────────
 
 function guessDomain(company: string): string {
   if (!company) return "";
   const slug = company.toLowerCase().replace(/[^a-z0-9]/g, "");
   return `${slug}.com`;
+}
+
+// ─── Detect email pattern from sample emails ────────────────────────
+
+function detectPattern(emails: string[], firstName: string, lastName: string, domain: string): EmailPattern | null {
+  const f = firstName.toLowerCase().replace(/[^a-z]/g, "");
+  const l = lastName.toLowerCase().replace(/[^a-z]/g, "");
+  const domainEmails = emails
+    .map((e) => e.toLowerCase())
+    .filter((e) => e.endsWith(`@${domain}`))
+    .filter((e) => !/^(info|hello|contact|support|sales|admin|hr|press|noreply|no-reply|team|jobs|careers)@/.test(e));
+
+  if (domainEmails.length === 0) return null;
+
+  const sample = domainEmails[0];
+  const local = sample.split("@")[0];
+
+  if (f && l) {
+    if (local === `${f}.${l}`) return "FIRST_LAST";
+    if (local === `${f[0]}.${l}`) return "F_LAST";
+    if (local === `${f}${l[0]}`) return "FIRSTL";
+    if (local === f) return "FIRST";
+    if (local === l) return "LAST";
+  }
+  // Generic structural detection
+  if (local.includes(".")) return "FIRST_LAST";
+  if (local.length <= 6) return "FIRST";
+  return "FIRST_LAST";
 }
 
 // ─── Main Handler ────────────────────────────────────────────────────
