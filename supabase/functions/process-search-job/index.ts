@@ -321,26 +321,35 @@ Deno.serve(async (req) => {
       const leadsToInsert = [];
 
       for (const result of searchResults) {
-        const parsed = parseSearchResult(result);
-        const companyName = parsed.company || company || "";
-        let domain = guessDomain(companyName);
+        // Step 1: snippet-based fallback parse
+        const snippetParsed = parseSearchResult(result);
 
-        // Check cached domain pattern
-        let discoveredPattern: EmailPattern | null = null;
-        if (domain) {
-          const { data: existing } = await supabase
-            .from("domain_patterns")
-            .select("pattern")
-            .eq("domain", domain)
-            .single();
-
-          if (existing) {
-            discoveredPattern = existing.pattern as EmailPattern;
-          }
+        // Step 2: scrape the LinkedIn profile to get the REAL current job
+        let profileMarkdown = "";
+        try {
+          console.log(`Scraping LinkedIn profile: ${result.url}`);
+          const scraped = await firecrawlScrape(firecrawlKey, result.url);
+          profileMarkdown = scraped.markdown || "";
+        } catch (err) {
+          console.warn(`LinkedIn profile scrape failed for ${result.url}:`, err);
         }
 
-        // Try to find real domain by scraping company website
-        if (companyName && !discoveredPattern) {
+        const profile = parseLinkedInProfile(profileMarkdown, {
+          fullName: snippetParsed.fullName,
+          role: snippetParsed.role,
+          company: snippetParsed.company,
+        });
+
+        const nameParts = profile.fullName.split(/\s+/);
+        const firstName = nameParts[0] || snippetParsed.firstName;
+        const lastName = nameParts.slice(1).join(" ") || snippetParsed.lastName;
+        const companyName = profile.company || company || "";
+
+        let domain = "";
+        let discoveredPattern: EmailPattern | null = null;
+
+        // Step 3: find the real company domain via web search
+        if (companyName) {
           try {
             const companySearch = await firecrawlSearch(
               firecrawlKey,
@@ -348,45 +357,64 @@ Deno.serve(async (req) => {
               1
             );
             if (companySearch.length > 0) {
-              const url = new URL(companySearch[0].url);
-              domain = url.hostname.replace(/^www\./, "");
-
-              // Try to discover email pattern from website
-              const scraped = await firecrawlScrape(firecrawlKey, companySearch[0].url);
-              const foundEmails = extractEmails(scraped.markdown);
-              if (foundEmails.length > 0) {
-                // Try to detect pattern from found emails
-                const sampleEmail = foundEmails[0];
-                const localPart = sampleEmail.split("@")[0];
-                if (localPart.includes(".")) discoveredPattern = "FIRST_LAST";
-                else discoveredPattern = "FIRST";
-              }
-
-              if (discoveredPattern) {
-                await supabase.from("domain_patterns").upsert(
-                  { domain, pattern: discoveredPattern, discovered_at: new Date().toISOString() },
-                  { onConflict: "domain" }
-                );
+              try {
+                const url = new URL(companySearch[0].url);
+                domain = url.hostname.replace(/^www\./, "");
+              } catch {
+                domain = guessDomain(companyName);
               }
             }
           } catch (err) {
-            console.warn(`Domain discovery failed for ${companyName}:`, err);
+            console.warn(`Company domain search failed for ${companyName}:`, err);
+          }
+        }
+        if (!domain) domain = guessDomain(companyName);
+
+        // Step 4: check cached pattern for this domain
+        if (domain) {
+          const { data: existing } = await supabase
+            .from("domain_patterns")
+            .select("pattern")
+            .eq("domain", domain)
+            .maybeSingle();
+          if (existing) discoveredPattern = existing.pattern as EmailPattern;
+        }
+
+        // Step 5: scrape company website to detect real pattern
+        if (domain && !discoveredPattern) {
+          try {
+            const scraped = await firecrawlScrape(firecrawlKey, `https://${domain}`);
+            let foundEmails = extractEmails(scraped.markdown);
+            if (foundEmails.filter((e) => e.endsWith(`@${domain}`)).length === 0) {
+              try {
+                const contactScraped = await firecrawlScrape(firecrawlKey, `https://${domain}/contact`);
+                foundEmails = [...foundEmails, ...extractEmails(contactScraped.markdown)];
+              } catch { /* ignore */ }
+            }
+            discoveredPattern = detectPattern(foundEmails, firstName, lastName, domain);
+            if (discoveredPattern) {
+              await supabase.from("domain_patterns").upsert(
+                { domain, pattern: discoveredPattern, discovered_at: new Date().toISOString() },
+                { onConflict: "domain" }
+              );
+            }
+          } catch (err) {
+            console.warn(`Pattern discovery failed for ${domain}:`, err);
           }
         }
 
-        const emails = generateEmails(parsed.firstName, parsed.lastName, domain);
-        const primaryEmail =
-          discoveredPattern
-            ? emails.find((e) => e.pattern === discoveredPattern)?.email || emails[0]?.email || ""
-            : emails[0]?.email || "";
+        const emails = generateEmails(firstName, lastName, domain);
+        const primaryEmail = discoveredPattern
+          ? emails.find((e) => e.pattern === discoveredPattern)?.email || emails[0]?.email || ""
+          : emails[0]?.email || "";
 
         leadsToInsert.push({
           job_id: job_id,
           user_id: job.user_id,
-          full_name: parsed.fullName,
-          first_name: parsed.firstName,
-          last_name: parsed.lastName,
-          role: parsed.role || role,
+          full_name: profile.fullName,
+          first_name: firstName,
+          last_name: lastName,
+          role: profile.role || role,
           company: companyName,
           country: country || null,
           domain,
@@ -394,7 +422,12 @@ Deno.serve(async (req) => {
           generated_emails: emails.map((e) => e.email),
           source_query: query,
           source_url: result.url,
-          raw_data: { ...result, parsed },
+          raw_data: {
+            snippet: result,
+            profile_parsed: profile,
+            pattern_detected: discoveredPattern,
+            profile_markdown_preview: profileMarkdown.slice(0, 800),
+          },
         });
       }
 
